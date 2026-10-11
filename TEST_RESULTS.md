@@ -71,3 +71,10 @@ The user confirmed both providers are version 3 on CloudStream 4.8.0. The same f
 Version 4 uses CloudStream's standard SSL-verifying HTTP client for the VixSrc requests and reports the failed stage and HTTP status/exception type. It preserves normal browser-declared URLs, referers and HLS validation. It does not bypass access checks. Cancellation is propagated. Diagnostic messages do not include signed URLs, tokens or response bodies. The root cause on the tablet and playback in CloudStream remain unconfirmed pending device retry.
 
 Validation: GitHub Actions run 38123532061 succeeded, including all three testDebugUnitTest tasks and distribution validation. All three public .cs3 files, plugins.json and repo.json were downloaded again; version 4 manifests, DEX payloads, ZIP integrity, sizes and SHA256 hashes match. No claim of Android playback success is made.
+
+
+## Version 5 — CasaCinema player recognition
+
+User screenshot from version 4: FilmPerTutti reports API VixSrc HTTP 403. This is a refused API request on the device; browser playback does not establish extension access. No access-control bypass is attempted.
+
+CasaCinema reports no compatible player. Reproduced using the downloaded actual film page: Jsoup sees zero #vidxgo-player nodes despite the literal iframe declaration in the response; an unclosed preceding script swallows the iframe. The public VixSrc declaration and IMDb identifier remain in script data. The parser now accepts this explicitly declared iframe from the original HTML too, without executing scripts. Regression tests cover valid HTML, the malformed CasaCinema structure, series rejection and unrelated page rejection. This fixes discovery; device API access/playback remains to be tested and may return the same 403.

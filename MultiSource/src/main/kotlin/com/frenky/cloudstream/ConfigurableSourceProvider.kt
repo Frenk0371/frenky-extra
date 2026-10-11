@@ -248,20 +248,16 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
         mainUrl = DomainRegistry.resolve(source.id, source.fallbackUrl)
         val uri = runCatching { URI(data) }.getOrNull() ?: return false
         if (uri.scheme != "https" || uri.host != URI(mainUrl).host) return false
-        val doc = runCatching { Jsoup.parse(getHtml(data), data) }.getOrNull() ?: return false
+        val html = runCatching { getHtml(data) }.getOrNull() ?: return false
+        val doc = Jsoup.parse(html, data)
         if (doc.select(".g-recaptcha, .h-captcha, input[type=password]").isNotEmpty()) return false
         val embeds = doc.select("#content-embed iframe[src], .movieplay iframe[src], .player iframe[src], iframe[data-src]")
             .map { it.absUrl(if (it.hasAttr("data-src")) "data-src" else "src") }
             .filter { runCatching { URI(it).scheme == "https" }.getOrDefault(false) }
             .distinct().toMutableList()
         // Only public, unencrypted player declarations; never evaluate arbitrary JavaScript.
-        if (source.searchMode == SearchMode.DLE_GET && doc.select("#vidxgo-player").isNotEmpty()) {
-            val scripts = doc.select("script").joinToString("\n") { it.data() }
-            val imdb = Regex("""var\s+imdb\s*=\s*['"](tt\d+)['"]""").find(scripts)?.groupValues?.get(1)
-            val isSeries = Regex("""var\s+SERIES\s*=\s*1""").containsMatchIn(scripts)
-            if (imdb != null && !isSeries && scripts.contains("https://vixsrc.to/movie/")) {
-                embeds.add("https://vixsrc.to/movie/$imdb?lang=it")
-            }
+        if (source.searchMode == SearchMode.DLE_GET) {
+            PublicPlayerDeclarations.dleMovie(doc, html)?.let { embeds.add(it) }
         }
         var found = false
         var playerFailure: String? = null

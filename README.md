@@ -6,7 +6,7 @@ In CloudStream aggiungere:
 
 https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/repo.json
 
-## Stato della versione 4
+## Stato della versione 5
 
 Beta: compilazione e disponibilità dei pacchetti non certificano la riproduzione. Consultare `TEST_RESULTS.md` prima di considerare una fonte funzionante.
 
@@ -40,3 +40,5 @@ Per un cambio dominio, un manutentore deve verificare l'annuncio/redirect sul do
 ```
 
 Il client richiede HTTPS, dominio verificato corrispondente, evidenza sul dominio originale e marchio della fonte nella nuova homepage. Se la verifica fallisce conserva il dominio originale. Questi controlli integrano la revisione umana; un nome simile da solo non prova l'identità. Aggiornare il registro non richiede ricompilazione.
+
+Versione 5: corretto il riconoscimento del player CasaCinema con HTML malformato. Sul tablet FilmPerTutti riceve HTTP 403 dall’API VixSrc: la riproduzione CloudStream resta bloccata/non confermata. Nessun tentativo di aggirare il rifiuto di accesso.
