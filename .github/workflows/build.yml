@@ -17,6 +17,7 @@ on:
       - 'GuardoSerie/**'
       - '.github/workflows/build.yml'
       - 'repo.json'
+      - 'scripts/**'
   workflow_dispatch:
 
 permissions:
@@ -58,6 +59,7 @@ jobs:
           cp build/plugins.json /tmp/cloudstream-dist/plugins.json
           find FilmPerTutti/build CasaCinema/build GuardoSerie/build -type f -name '*.cs3' -exec cp {} /tmp/cloudstream-dist/ \;
           test "$(find /tmp/cloudstream-dist -name '*.cs3' | wc -l)" -eq 3
+          python scripts/verify_dist.py /tmp/cloudstream-dist
           cd /tmp/cloudstream-dist
           git init -b builds
           git config user.name "github-actions[bot]"

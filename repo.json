@@ -1,6 +1,6 @@
 {
-  "name": "Frenky Extra (test)",
-  "description": "Cataloghi sperimentali senza Eurostreaming. Ricerca e locandine da verificare.",
+  "name": "Frenky Extra",
+  "description": "Tre provider indipendenti. Versione beta: riproduzione e cataloghi parzialmente verificati.",
   "manifestVersion": 1,
   "pluginLists": [
     "https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/plugins.json"

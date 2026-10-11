@@ -117,6 +117,7 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
         val expectedHost = runCatching { URI(mainUrl).host?.lowercase(Locale.ROOT)
             ?.removePrefix("www.") }.getOrNull() ?: return emptyList()
         val hits = LinkedHashMap<String, CatalogueHit>()
+        var responded = false
 
         for (variant in queryVariants(query)) {
             val encoded = URLEncoder.encode(variant, "UTF-8")
@@ -130,7 +131,7 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                 SearchMode.NONE -> return emptyList()
             }
             val document = try {
-                Jsoup.parse(getHtml(searchUrl), searchUrl)
+                Jsoup.parse(getHtml(searchUrl), searchUrl).also { responded = true }
             } catch (error: Exception) {
                 Log.w("FrenkyCloudStream", "Search failed for ${source.id}: ${error.javaClass.simpleName}")
                 continue // Failed variant must not prevent fallback to another spelling.
@@ -163,6 +164,7 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
             // An exact title is already found: no unnecessary extra network requests.
             if (hits.values.any { it.score >= 95 }) break
         }
+        check(responded) { "Fonte temporaneamente non disponibile" }
         return hits.values
             .sortedWith(compareByDescending<CatalogueHit> { it.score }
                 .thenBy { it.title.length })
@@ -215,7 +217,8 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                     episode = match.groupValues[2].toIntOrNull()
                 }
             }
-        val isSeries = episodes.isNotEmpty() || URI(url).path.contains("serie", true)
+        val isSeries = episodes.isNotEmpty() || URI(url).path.contains("serie", true) ||
+            Regex("""var\s+SERIES\s*=\s*1""").containsMatchIn(doc.select("script").joinToString("\n") { it.data() })
         return if (isSeries) {
             newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
                 this.posterUrl = poster

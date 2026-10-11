@@ -2,7 +2,6 @@ version = 2
 
 android {
     sourceSets["main"].java.srcDir("../MultiSource/src/main/kotlin")
-    sourceSets["main"].java.exclude("**/MultiSourcePlugin.kt")
 }
 
 cloudstream {
