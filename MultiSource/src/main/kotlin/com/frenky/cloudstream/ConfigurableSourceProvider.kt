@@ -6,6 +6,9 @@ import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import com.lagradost.cloudstream3.utils.loadExtractor
 import android.util.Log
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -261,6 +264,7 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
             }
         }
         var found = false
+        var playerFailure: String? = null
         for (embed in embeds.distinct().take(10)) {
             try {
                 val publicPlaylist = if (URI(embed).host == "vixsrc.to") PublicVixPlayer.resolve(embed) else null
@@ -277,7 +281,21 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                     callback(link)
                 }
             } catch (error: Exception) {
-                Log.w("FrenkyExtra", "Player unavailable: ${error.javaClass.simpleName}")
+                if (error is kotlinx.coroutines.CancellationException) throw error
+                val detail = if (error is PublicVixPlayer.PlayerFailure) error.message else error.javaClass.simpleName
+                if (URI(embed).host == "vixsrc.to") playerFailure = detail
+                Log.w("FrenkyExtra", "${source.id}: $detail")
+            } catch (error: LinkageError) {
+                playerFailure = "Incompatibilità con l'app: ${error.javaClass.simpleName}"
+                Log.w("FrenkyExtra", "${source.id}: $playerFailure")
+            }
+        }
+        if (!found) {
+            val message = "$name: " + (playerFailure ?: "nessun lettore compatibile disponibile")
+            Handler(Looper.getMainLooper()).post {
+                com.lagradost.cloudstream3.CloudStreamApp.context?.let { context ->
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                }
             }
         }
         return found

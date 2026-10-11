@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 android {
     sourceSets["main"].kotlin.srcDir("../MultiSource/src/main/kotlin")

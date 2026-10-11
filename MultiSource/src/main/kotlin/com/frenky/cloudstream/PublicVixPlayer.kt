@@ -3,10 +3,9 @@ package com.frenky.cloudstream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.io.ByteArrayOutputStream
-import java.net.HttpURLConnection
+import com.lagradost.cloudstream3.app
+import java.io.IOException
 import java.net.URI
-import java.net.URL
 import java.net.URLEncoder
 
 /** Follows only the public player/API declarations used by VixSrc's browser player. */
@@ -48,26 +47,23 @@ object PublicVixPlayer {
         }
     }
 
-    private fun read(url: String, referer: String): String {
-        val connection = URL(url).openConnection() as HttpURLConnection
-        try {
-            connection.connectTimeout = 10000
-            connection.readTimeout = 15000
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0")
-            connection.setRequestProperty("Referer", referer)
-            check(connection.responseCode == 200) { "Player HTTP ${connection.responseCode}" }
-            return connection.inputStream.use { input ->
-                val output = ByteArrayOutputStream()
-                val chunk = ByteArray(8192)
-                while (true) {
-                    val count = input.read(chunk)
-                    if (count < 0) break
-                    check(output.size() + count <= 600000) { "Player response too large" }
-                    output.write(chunk, 0, count)
-                }
-                output.toString("UTF-8")
-            }
-        } finally { connection.disconnect() }
+    class PlayerFailure(val stage: String, val detail: String) : IOException("$stage: $detail")
+
+    private suspend fun read(url: String, referer: String, stage: String): String {
+        val response = try {
+            app.get(url, referer = referer, headers = mapOf("User-Agent" to "Mozilla/5.0"), timeout = 20000L)
+        } catch (error: Exception) {
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            // Do not log signed URLs, tokens or response bodies.
+            throw PlayerFailure(stage, error.javaClass.simpleName)
+        }
+        if (response.code != 200) throw PlayerFailure(stage, "HTTP ${response.code}")
+        val text = response.text
+        if (text.length > 600000) throw PlayerFailure(stage, "risposta troppo grande")
+        if (text.contains("g-recaptcha") || text.contains("h-captcha")) {
+            throw PlayerFailure(stage, "verifica di accesso richiesta")
+        }
+        return text
     }
 
     suspend fun resolve(page: String): Playlist? = withContext(Dispatchers.IO) {
@@ -75,19 +71,19 @@ object PublicVixPlayer {
         if (uri.scheme != "https" || uri.host != "vixsrc.to") return@withContext null
         if (!Regex("""/movie/(?:tt\d+|\d+)""").matches(uri.path)) return@withContext null
         val apiUrl = ORIGIN + "/api" + uri.rawPath + "?lang=it"
-        val src = JSONObject(read(apiUrl, page)).optString("src")
+        val src = JSONObject(read(apiUrl, page, "API VixSrc")).optString("src")
         val embed = URI(ORIGIN).resolve(src)
-        if (src.isBlank() || embed.scheme != "https" || embed.host != "vixsrc.to" || !embed.path.startsWith("/embed/")) return@withContext null
-        val playlist = parsePlaylist(read(embed.toString(), page), embed.rawQuery?.contains("canPlayFHD=1") == true) ?: return@withContext null
-        val manifest = read(playlist, embed.toString())
-        if (!supportedHls(manifest)) return@withContext null
+        if (src.isBlank() || embed.scheme != "https" || embed.host != "vixsrc.to" || !embed.path.startsWith("/embed/")) throw PlayerFailure("API VixSrc", "indirizzo del lettore non disponibile")
+        val playlist = parsePlaylist(read(embed.toString(), page, "Pagina VixSrc"), embed.rawQuery?.contains("canPlayFHD=1") == true) ?: throw PlayerFailure("Pagina VixSrc", "playlist non dichiarata")
+        val manifest = read(playlist, embed.toString(), "Playlist VixSrc")
+        if (!supportedHls(manifest)) throw PlayerFailure("Playlist VixSrc", "formato non supportato")
         val variant = manifest.lineSequence().map { it.trim() }
             .firstOrNull { it.isNotBlank() && !it.startsWith("#") }
         if (variant != null && manifest.contains("#EXT-X-STREAM-INF")) {
             val mediaUrl = URI(playlist).resolve(variant).toString()
             if (URI(mediaUrl).scheme != "https") return@withContext null
-            val media = read(mediaUrl, embed.toString())
-            if (!supportedHls(media)) return@withContext null
+            val media = read(mediaUrl, embed.toString(), "Video VixSrc")
+            if (!supportedHls(media)) throw PlayerFailure("Video VixSrc", "formato non supportato")
         }
         Playlist(playlist, embed.toString())
     }
