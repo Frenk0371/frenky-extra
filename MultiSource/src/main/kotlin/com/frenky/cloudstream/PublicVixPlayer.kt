@@ -1,0 +1,94 @@
+package com.frenky.cloudstream
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import java.net.HttpURLConnection
+import java.net.URI
+import java.net.URL
+import java.net.URLEncoder
+
+/** Follows only the public player/API declarations used by VixSrc's browser player. */
+object PublicVixPlayer {
+    private const val ORIGIN = "https://vixsrc.to"
+    data class Playlist(val url: String, val referer: String)
+
+    fun parsePlaylist(html: String, fullHd: Boolean = false): String? {
+        if (html.contains("g-recaptcha") || html.contains("h-captcha")) return null
+        val start = html.indexOf("window.masterPlaylist")
+        if (start < 0) return null
+        val block = html.substring(start).substringBefore("window.canPlayFHD").take(12000)
+        val url = Regex("""url\s*:\s*['"]([^'"]+)['"]""").find(block)?.groupValues?.get(1) ?: return null
+        val active = Regex(""""active"\s*:\s*true\s*,\s*"url"\s*:\s*"([^"]+)"""")
+            .find(html)?.groupValues?.get(1)?.replace("\\/", "/") ?: url
+        val uri = runCatching { URI(active) }.getOrNull() ?: return null
+        if (uri.scheme != "https" || uri.host != "vixsrc.to" || !uri.path.startsWith("/playlist/")) return null
+        val params = Regex("""['"](token|expires|asn)['"]\s*:\s*['"]([^'"]*)['"]""")
+            .findAll(block).filter { it.groupValues[2].isNotEmpty() }
+            .associate { it.groupValues[1] to it.groupValues[2] }.toMutableMap()
+        if (params["token"].isNullOrBlank() || params["expires"]?.toLongOrNull() == null) return null
+        if (fullHd) params["h"] = "1"
+        return active + (if (uri.query == null) "?" else "&") + params.entries.joinToString("&") {
+            URLEncoder.encode(it.key, "UTF-8") + "=" + URLEncoder.encode(it.value, "UTF-8")
+        }
+    }
+
+    /** Native HLS AES-128 with identity keys is handled by the app's standard player.
+     * DRM key formats, license URLs and SAMPLE-AES are never handled here. */
+    fun supportedHls(manifest: String): Boolean {
+        if (!manifest.trimStart().startsWith("#EXTM3U")) return false
+        val keys = manifest.lineSequence().filter {
+            it.startsWith("#EXT-X-KEY:") || it.startsWith("#EXT-X-SESSION-KEY:")
+        }.toList()
+        return keys.all { line ->
+            val method = Regex("""METHOD=([^,]+)""").find(line)?.groupValues?.get(1)
+            val format = Regex("""KEYFORMAT="([^"]+)"""").find(line)?.groupValues?.get(1)
+            (method == "NONE" || method == "AES-128") && (format == null || format == "identity")
+        }
+    }
+
+    private fun read(url: String, referer: String): String {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        try {
+            connection.connectTimeout = 10000
+            connection.readTimeout = 15000
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0")
+            connection.setRequestProperty("Referer", referer)
+            check(connection.responseCode == 200) { "Player HTTP ${connection.responseCode}" }
+            return connection.inputStream.use { input ->
+                val output = ByteArrayOutputStream()
+                val chunk = ByteArray(8192)
+                while (true) {
+                    val count = input.read(chunk)
+                    if (count < 0) break
+                    check(output.size() + count <= 600000) { "Player response too large" }
+                    output.write(chunk, 0, count)
+                }
+                output.toString("UTF-8")
+            }
+        } finally { connection.disconnect() }
+    }
+
+    suspend fun resolve(page: String): Playlist? = withContext(Dispatchers.IO) {
+        val uri = runCatching { URI(page) }.getOrNull() ?: return@withContext null
+        if (uri.scheme != "https" || uri.host != "vixsrc.to") return@withContext null
+        if (!Regex("""/movie/(?:tt\d+|\d+)""").matches(uri.path)) return@withContext null
+        val apiUrl = ORIGIN + "/api" + uri.rawPath + "?lang=it"
+        val src = JSONObject(read(apiUrl, page)).optString("src")
+        val embed = URI(ORIGIN).resolve(src)
+        if (src.isBlank() || embed.scheme != "https" || embed.host != "vixsrc.to" || !embed.path.startsWith("/embed/")) return@withContext null
+        val playlist = parsePlaylist(read(embed.toString(), page), embed.rawQuery?.contains("canPlayFHD=1") == true) ?: return@withContext null
+        val manifest = read(playlist, embed.toString())
+        if (!supportedHls(manifest)) return@withContext null
+        val variant = manifest.lineSequence().map { it.trim() }
+            .firstOrNull { it.isNotBlank() && !it.startsWith("#") }
+        if (variant != null && manifest.contains("#EXT-X-STREAM-INF")) {
+            val mediaUrl = URI(playlist).resolve(variant).toString()
+            if (URI(mediaUrl).scheme != "https") return@withContext null
+            val media = read(mediaUrl, embed.toString())
+            if (!supportedHls(media)) return@withContext null
+        }
+        Playlist(playlist, embed.toString())
+    }
+}

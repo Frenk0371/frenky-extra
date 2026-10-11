@@ -38,3 +38,24 @@ Richieste HTTP reali a homepage, ricerche e schede; nessun bypass. I test non so
 - I dati del catalogo possono contenere titoli/episodi annunciati o link indisponibili. Una scheda presente non prova la disponibilità né i diritti di un contenuto.
 
 Questa versione rimane sperimentale finché i test di riproduzione non saranno riusciti.
+
+
+## Correzione riproduzione — versione 3
+
+Segnalazione reale: “L’allenatore nel pallone” presente nei risultati di FilmPerTutti/CasaCinema, ma CloudStream mostra “link non trovato”.
+
+Causa: la versione 2 delegava VixSrc al registro degli estrattori dell’app. L’app ufficiale esaminata non contiene tale estrattore; inoltre occorre seguire il flusso pubblico API → embed → server HLS attivo.
+
+Correzione: seguire le dichiarazioni pubbliche del lettore ufficiale, conservare i parametri del server attivo e il referer del lettore, e passare la playlist al lettore HLS standard di CloudStream. I parametri di accesso sono solo quelli emessi dal server; non vengono inventati né alterati. Nessun bypass di CAPTCHA, login o DRM. Le risposte non disponibili restano errori.
+
+Test live su IMDb tt0086874, riferito alle schede verificate dei due provider:
+
+- API pubblica: HTTP 200.
+- Pagina embed effettiva: HTTP 200.
+- Playlist HLS master: HTTP 200; tre varianti dichiarate 480p, 720p, 1080p.
+- Playlist della prima variante e primo segmento: scaricati con successo.
+- HLS AES-128 identity: chiave standard del manifest pubblicamente accessibile, 16 byte; il lettore HLS gestisce il normale protocollo. Nessun sistema di licenze DRM coinvolto.
+- FFprobe sul primo segmento, riprodotto tramite il protocollo HLS nativo: H.264 video e AAC audio, durata 6 secondi.
+- I test non equivalgono ancora a una prova sul tablet dell’utente.
+
+GuardoSerie/Loadm rimane non confermato. Il percorso VixSrc è implementato per i film; non risolve gli elenchi incompleti degli episodi DLE.

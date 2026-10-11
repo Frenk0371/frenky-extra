@@ -2,6 +2,8 @@ package com.frenky.cloudstream
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.ExtractorLinkType
+import com.lagradost.cloudstream3.utils.newExtractorLink
 import com.lagradost.cloudstream3.utils.loadExtractor
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -261,6 +263,15 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
         var found = false
         for (embed in embeds.distinct().take(10)) {
             try {
+                val publicPlaylist = if (URI(embed).host == "vixsrc.to") PublicVixPlayer.resolve(embed) else null
+                if (publicPlaylist != null) {
+                    callback(newExtractorLink(name, "$name - VixSrc", publicPlaylist.url, ExtractorLinkType.M3U8) {
+                        referer = publicPlaylist.referer
+                        headers = mapOf("User-Agent" to "Mozilla/5.0", "Origin" to "https://vixsrc.to")
+                    })
+                    found = true
+                    continue
+                }
                 loadExtractor(embed, data, subtitleCallback) { link ->
                     found = true
                     callback(link)

@@ -6,7 +6,7 @@ In CloudStream aggiungere:
 
 https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/repo.json
 
-## Stato della versione 2
+## Stato della versione 3
 
 Beta: compilazione e disponibilità dei pacchetti non certificano la riproduzione. Consultare `TEST_RESULTS.md` prima di considerare una fonte funzionante.
 
@@ -14,8 +14,8 @@ Beta: compilazione e disponibilità dei pacchetti non certificano la riproduzion
 - Normalizzazione accenti/articoli/anno e corrispondenze per parole intere. Non traduce automaticamente titoli tra lingue.
 - Locandine tramite immagini lazy, metadati e CSS delle schede.
 - Episodi GuardoSerie estratti da collegamenti realmente presenti. Nessun episodio creato sulla base di selettori numerici generici.
-- Lettori pubblici delegati agli estrattori presenti nella versione installata di CloudStream. Nessun estrattore personalizzato, aggiramento DRM, CAPTCHA, autenticazione o browser automatizzato.
-- FilmPerTutti/CasaCinema: lettore pubblico dichiarato in chiaro nel sito; cataloghi serie/episodi non ancora completamente implementati.
+- Lettori pubblici delegati agli estrattori presenti nella versione installata di CloudStream. Supporto VixSrc per il flusso pubblico API → embed → HLS. Nessun aggiramento DRM, CAPTCHA, autenticazione o browser automatizzato.
+- FilmPerTutti/CasaCinema: lettore VixSrc verificato sul campione L’allenatore nel pallone; cataloghi serie/episodi non ancora completamente implementati.
 - Homepage vuota: usare la ricerca.
 
 ## Compilazione
