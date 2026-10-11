@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import com.lagradost.cloudstream3.app
+import android.util.Log
 import java.io.IOException
 import java.net.URI
 import java.net.URLEncoder
@@ -50,6 +51,8 @@ object PublicVixPlayer {
     class PlayerFailure(val stage: String, val detail: String) : IOException("$stage: $detail")
 
     private suspend fun read(url: String, referer: String, stage: String): String {
+        val requested = PlayerDiagnostics.address(url)
+        Log.i("FrenkyExtra", "$stage: GET $requested")
         val response = try {
             // NiceHttp timeouts are in seconds. Preserve the app's configured
             // headers rather than overriding its User-Agent with a partial value.
@@ -59,6 +62,12 @@ object PublicVixPlayer {
             // Do not log signed URLs, tokens or response bodies.
             throw PlayerFailure(stage, error.javaClass.simpleName)
         }
+        val mime = PlayerDiagnostics.contentType(response.headers["Content-Type"])
+        val destination = PlayerDiagnostics.address(response.url)
+        val cloudflare = response.headers["CF-Ray"] != null ||
+            response.headers["Server"].equals("cloudflare", ignoreCase = true)
+        Log.i("FrenkyExtra", "$stage: HTTP ${response.code}; tipo=$mime; " +
+            "richiesta=$requested; destinazione=$destination; cloudflare=$cloudflare")
         if (response.code != 200) {
             // Report only a category, never server bodies, cookies or signed URLs.
             val body = response.text.take(12000).lowercase()

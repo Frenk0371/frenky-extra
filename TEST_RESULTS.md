@@ -93,3 +93,9 @@ Source inspection of NiceHttp 0.4.18 (commit f1dee9dfc5b86a24c65bf8c6e8403d33634
 These changes correct request configuration and improve diagnostics; they do not prove why the device received 403 or establish Android playback success. CI and published artifacts must be verified separately.
 
 Version 6 publication verified: GitHub Actions run 38130180362 succeeded on commit 61f82f23594c04f3dcbbfca92123fdc221f8e3fe, executing testDebugUnitTest and distribution validation. The public repo.json, plugins.json and all three .cs3 packages were downloaded; version 6 manifests, ZIP integrity, DEX signatures, file sizes and SHA-256 hashes match. Android playback still requires a device retry.
+
+## Version 7 — diagnostics after Android logcat
+
+User logcat 2026-10-11 12:26: CasaCinema downloads the movie page then reports VixSrc API HTTP 403 (HTML) at 12:25:50; FilmPerTutti does the same at 12:25:55. Neither reaches the embed/HLS stage. Other provider DNS failures are unrelated.
+
+Added bounded diagnostics for the public API path, HTTP status, allowlisted MIME category, final destination after redirects and presence of Cloudflare headers. No query, fragments, credentials, signed paths, response bodies or cookie values are recorded. Header presence is evidence about the response, not proof of the cause of HTTP 403. Privacy regression tests cover redaction and arbitrary header values. No workaround for server access refusal was added. Android playback remains blocked/unconfirmed. CI publication is verified separately.

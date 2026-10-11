@@ -6,7 +6,7 @@ In CloudStream aggiungere:
 
 https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/repo.json
 
-## Stato della versione 6
+## Stato della versione 7
 
 Beta: compilazione e disponibilità dei pacchetti non certificano la riproduzione. Consultare `TEST_RESULTS.md` prima di considerare una fonte funzionante.
 
@@ -44,3 +44,5 @@ Il client richiede HTTPS, dominio verificato corrispondente, evidenza sul domini
 Versione 5: corretto il riconoscimento del player CasaCinema con HTML malformato. Sul tablet FilmPerTutti riceve HTTP 403 dall’API VixSrc: la riproduzione CloudStream resta bloccata/non confermata. Nessun tentativo di aggirare il rifiuto di accesso.
 
 Versione 6: rimossi gli override dell’User-Agent incompleto nel resolver VixSrc; le richieste usano la configurazione HTTP standard dell’app e il player HLS conserva lo stesso User-Agent configurato. Corretto il timeout NiceHttp da 20000 a 20 secondi. Errori HTTP classificati senza mostrare corpi, cookie o URL firmati. Nessun bypass e nessuna riproduzione Android confermata.
+
+Versione 7: diagnostica delle richieste VixSrc con percorso API pubblico, stato HTTP, tipo MIME e destinazione dopo redirect. Query, frammenti, credenziali, percorsi firmati e contenuti del server sono omessi. La presenza di header Cloudflare non prova la causa del rifiuto. Il log Android delle 12:25 conferma HTTP 403 su entrambi i provider; questa versione raccoglie informazioni, non certifica una correzione della riproduzione.
