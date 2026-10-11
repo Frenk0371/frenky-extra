@@ -1,0 +1,8 @@
+{
+  "name": "Frenky Extra (test)",
+  "description": "Cataloghi sperimentali senza Eurostreaming. Ricerca e locandine da verificare.",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/plugins.json"
+  ]
+}
