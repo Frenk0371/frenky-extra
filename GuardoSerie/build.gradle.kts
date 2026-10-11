@@ -1,8 +1,8 @@
 version = 2
 
 android {
-    sourceSets["main"].java.srcDir("../MultiSource/src/main/kotlin")
-    sourceSets["test"].java.srcDir("../MultiSource/src/test/kotlin")
+    sourceSets["main"].kotlin.srcDir("../MultiSource/src/main/kotlin")
+    sourceSets["test"].kotlin.srcDir("../MultiSource/src/test/kotlin")
 }
 
 cloudstream {
