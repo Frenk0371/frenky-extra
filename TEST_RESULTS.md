@@ -112,3 +112,14 @@ Added an explicit user choice after that specific failure: open the publicly dec
 The dialog uses CommonActivity.activity, destroys its WebView when dismissed, supports the site's full-screen video view, disables file/content access and mixed content, and limits main-frame navigation to HTTPS VixSrc without userinfo or nonstandard ports. Unit tests exercise public movie-page selection and reject hostile origins, credentials, nonstandard ports and unsafe schemes. Android runtime playback and TV remote usability are unverified. CI and distribution results are recorded after verification.
 
 Version 8 publication verified: [GitHub Actions run 38133055404](https://github.com/Frenk0371/frenky-extra/actions/runs/38133055404) succeeded on source commit `36f881e8949cb27956719994f3141927668c867e`, including all three testDebugUnitTest tasks and distribution validation. The public repo.json, plugins.json and all three .cs3 packages were downloaded. Version 8 manifests, plugin classes, ZIP integrity, DEX signatures, sizes and SHA-256 hashes match. Package sizes: CasaCinema 51950 bytes; FilmPerTutti and GuardoSerie 51969 bytes each. In-app WebView playback remains untested on the user's device; native API access is not fixed by this release.
+
+
+## GuardoSerie version 9 only — movie providers preserved
+
+The user confirmed video and audio on the tablet for both FilmPerTutti and CasaCinema using the version-8 visible in-app web player, on the tested film. Native VixSrc API still returns 403; this is not a claim of native playback or availability for every title. The user explicitly requested changes only to GuardoSerie.
+
+The supplied screenshot shows guardoseries.sbs, which was already the configured domain. Fresh ordinary HTTPS GETs to the homepage, search `?s=night`, The Night Agent series page, and episode S1E1 all returned 200. The series page declares 30 actual episode links across three seasons. The episode declares a lazy iframe at Loadm. These are catalogue/discovery checks, not Android playback verification.
+
+Added a GuardoSerie-only subclass: standard extraction remains first; if no native link is produced and casting was not requested, a user-operated in-app WebView can open the actual catalogue episode page. No automatic stream extraction, challenge solving, cookie transfer or SSL override is added. Movie-provider/shared sources are not edited. Dedicated URL policy tests reject foreign or unsafe addresses.
+
+Publication now reads the existing builds branch and preserves FilmPerTutti/CasaCinema version-8 files byte-for-byte and their full plugins.json entries. An independent distribution validation compares those files and entries with the previous release before publishing. Only GuardoSerie is upgraded to version 9. CI/public distribution verification follows separately.

@@ -50,6 +50,12 @@ jobs:
           gradle-version: '9.5.0'
       - name: Build extension artifacts
         run: gradle testDebugUnitTest make makePluginsJson --no-daemon
+      - name: Read existing published movie providers
+        uses: actions/checkout@v4
+        with:
+          ref: builds
+          path: .published-builds
+          persist-credentials: false
       - name: Publish builds branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -57,9 +63,10 @@ jobs:
           mkdir -p /tmp/cloudstream-dist
           cp repo.json /tmp/cloudstream-dist/repo.json
           cp build/plugins.json /tmp/cloudstream-dist/plugins.json
-          find FilmPerTutti/build CasaCinema/build GuardoSerie/build -type f -name '*.cs3' -exec cp {} /tmp/cloudstream-dist/ \;
+          find GuardoSerie/build -type f -name '*.cs3' -exec cp {} /tmp/cloudstream-dist/ \;
+          python scripts/preserve_movie_providers.py /tmp/cloudstream-dist .published-builds
           test "$(find /tmp/cloudstream-dist -name '*.cs3' | wc -l)" -eq 3
-          python scripts/verify_dist.py /tmp/cloudstream-dist
+          python scripts/verify_dist.py /tmp/cloudstream-dist .published-builds
           cd /tmp/cloudstream-dist
           git init -b builds
           git config user.name "github-actions[bot]"

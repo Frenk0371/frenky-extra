@@ -6,7 +6,7 @@ In CloudStream aggiungere:
 
 https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/repo.json
 
-## Stato della versione 8
+## Stato dei provider
 
 Beta: compilazione e disponibilità dei pacchetti non certificano la riproduzione. Consultare `TEST_RESULTS.md` prima di considerare una fonte funzionante.
 
@@ -49,3 +49,6 @@ Versione 7: diagnostica delle richieste VixSrc con percorso API pubblico, stato 
 
 
 Versione 8: se l’API VixSrc restituisce HTTP 403, FilmPerTutti/CasaCinema propongono “Apri player interno”. Dopo la scelta dell’utente, la pagina pubblica del film si apre in una WebView visibile dentro CloudStream. Play ed eventuali verifiche restano manuali. Non vengono estratti flussi, trasferiti cookie, automatizzati controlli o modificato l’User-Agent. Questo percorso usa il player web del sito, non il lettore nativo: avanzamento, casting e sottotitoli CloudStream non sono integrati. Le navigazioni principali restano sul dominio VixSrc; HTTPS obbligatorio, accesso ai file e bridge JavaScript disabilitati. La riproduzione sul tablet resta da verificare.
+
+
+GuardoSerie versione 9: il dominio era già `https://guardoseries.sbs/`; verificati nuovamente ricerca, scheda ed elenco di 30 episodi del campione The Night Agent. L’episodio S1E1 dichiara un iframe pubblico Loadm. Se gli estrattori non producono un link, viene proposta l’apertura della pagina dell’episodio nel player web interno dedicato a GuardoSerie. Il percorso è manuale e resta da provare sul dispositivo; casting e avanzamento CloudStream non sono disponibili. FilmPerTutti e CasaCinema restano alla versione 8: i loro pacchetti e metadati pubblicati sono conservati esattamente dalla pipeline, senza modifiche al loro codice.
