@@ -24,8 +24,7 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
     override var mainUrl: String = source.fallbackUrl
     override var name: String = source.displayName
     override var lang: String = "it"
-    override val supportedTypes = if (source.isSeries) setOf(TvType.TvSeries)
-        else setOf(TvType.Movie, TvType.TvSeries)
+    override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries)
     // CloudStream hides providers without a main page from the home source selector.
     // This metadata-only provider exposes an empty home page so it can be selected
     // and searched without pretending to have a browsable video catalogue.
@@ -195,14 +194,14 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
             itemHost == null || itemHost !in knownHosts)
             throw IllegalArgumentException("URL fuori dal provider")
         val doc: Document = Jsoup.parse(getHtml(url), url)
-        val title = doc.selectFirst("h1, .mvi-title, .title-film")?.text()?.trim()
+        val title = doc.selectFirst("h1, .mvi-title, #mv-info h3, .title-film")?.text()?.trim()
             ?.takeIf { it.isNotBlank() }
             ?: doc.selectFirst("meta[property=og:title]")?.attr("content")
             ?: "Scheda del catalogo"
         val description = doc.selectFirst("meta[property=og:description]")?.attr("content")
             ?: doc.selectFirst("meta[name=description]")?.attr("content")
             ?: ""
-        val plotText = doc.selectFirst(".mvi-desc, .fullstory, .full-text, .description")?.text()
+        val plotText = doc.selectFirst(".mvic-desc .desc, .fullstory, .full-text, .description, .text")?.text()
             ?.takeIf { it.isNotBlank() } ?: description
         val poster = PosterFinder.fromDocument(doc, title) ?: posterFor(url)
         val episodes = doc.select(".tvseason .les-content a[href], a[href*=/episodio/]")
@@ -244,9 +243,18 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
         val embeds = doc.select("#content-embed iframe[src], .movieplay iframe[src], .player iframe[src], iframe[data-src]")
             .map { it.absUrl(if (it.hasAttr("data-src")) "data-src" else "src") }
             .filter { runCatching { URI(it).scheme == "https" }.getOrDefault(false) }
-            .distinct().take(10)
+            .distinct().toMutableList()
+        // Only public, unencrypted player declarations; never evaluate arbitrary JavaScript.
+        if (source.searchMode == SearchMode.DLE_GET && doc.select("#vidxgo-player").isNotEmpty()) {
+            val scripts = doc.select("script").joinToString("\n") { it.data() }
+            val imdb = Regex("""var\s+imdb\s*=\s*['"](tt\d+)['"]""").find(scripts)?.groupValues?.get(1)
+            val isSeries = Regex("""var\s+SERIES\s*=\s*1""").containsMatchIn(scripts)
+            if (imdb != null && !isSeries && scripts.contains("https://vixsrc.to/movie/")) {
+                embeds.add("https://vixsrc.to/movie/$imdb?lang=it")
+            }
+        }
         var found = false
-        for (embed in embeds) {
+        for (embed in embeds.distinct().take(10)) {
             try {
                 loadExtractor(embed, data, subtitleCallback) { link ->
                     found = true
@@ -266,7 +274,7 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                 requestMethod = "GET"
                 connectTimeout = 9000
                 readTimeout = 9000
-                setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; FrenkyCatalogue/1.0)")
+                setRequestProperty("User-Agent", "Mozilla/5.0")
                 setRequestProperty("Accept", "text/html,application/xhtml+xml")
             }
             val status = connection.responseCode
