@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-11",
+  "sources": [
+    {
+      "id": "filmpertutti",
+      "name": "FilmPerTutti",
+      "original_url": "https://film-pertutti.fit/",
+      "current_url": "https://film-pertutti.fit/",
+      "manual_aliases": []
+    },
+    {
+      "id": "casacinema",
+      "name": "CasaCinema",
+      "original_url": "https://casa-cinema.boats/",
+      "current_url": "https://casa-cinema.boats/",
+      "manual_aliases": []
+    },
+    {
+      "id": "guardoserie_new",
+      "name": "GuardoSerie",
+      "original_url": "https://guardoseries.sbs/",
+      "current_url": "https://guardoseries.sbs/",
+      "manual_aliases": []
+    }
+  ]
+}
