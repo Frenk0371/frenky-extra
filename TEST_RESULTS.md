@@ -59,3 +59,6 @@ Test live su IMDb tt0086874, riferito alle schede verificate dei due provider:
 - I test non equivalgono ancora a una prova sul tablet dell’utente.
 
 GuardoSerie/Loadm rimane non confermato. Il percorso VixSrc è implementato per i film; non risolve gli elenchi incompleti degli episodi DLE.
+
+Verifica finale della versione 3: run 38121657491 riuscito; test JUnit in tutti e tre i moduli passati; pacchetti pubblici scaricati e verificati (versione 3, DEX, manifest, dimensioni, SHA-256). FFmpeg ha decodificato un secondo di video e audio del campione HLS senza errori. Link build: https://github.com/Frenk0371/frenky-extra/actions/runs/38121657491
+
