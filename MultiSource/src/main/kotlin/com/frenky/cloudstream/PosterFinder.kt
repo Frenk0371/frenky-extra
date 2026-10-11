@@ -55,6 +55,11 @@ object PosterFinder {
     fun fromSearchCard(anchor: Element, card: Element?): String? {
         val images = sequenceOf(anchor.selectFirst("img"), card?.selectFirst("img"),
             anchor.parent()?.selectFirst("img")).filterNotNull()
-        return images.mapNotNull { image: Element -> candidates(image).firstOrNull() }.firstOrNull()
+        val image = images.mapNotNull { image: Element -> candidates(image).firstOrNull() }.firstOrNull()
+        if (image != null) return image
+        val element = anchor.selectFirst("[style*=background-image]") ?: card?.selectFirst("[style*=background-image]")
+        val raw = element?.attr("style")?.let { Regex("url\\(([^)]+)\\)").find(it)?.groupValues?.get(1)?.trim('\'', '"', ' ') }
+            ?: anchor.attr("data-thumbnail").takeIf { it.isNotBlank() }
+        return raw?.let { runCatching { URI(anchor.baseUri()).resolve(it).toString() }.getOrNull() }?.takeIf(::usable)
     }
 }

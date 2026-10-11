@@ -1,0 +1,4 @@
+.cloudstream-gradle/
+.gradle/
+**/build/
+local.properties

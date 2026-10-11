@@ -1,6 +1,8 @@
 package com.frenky.cloudstream
 
 import com.lagradost.cloudstream3.*
+import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.loadExtractor
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,10 +17,10 @@ import java.util.Locale
 import java.net.URL
 
 /**
- * Metadata-only catalogue integration. No embed extraction, stream playback
- * or DRM/access-control circumvention is implemented.
+ * Public catalogue and standard compatible player integration.
+ * No DRM or access-control circumvention is implemented.
  */
-class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
+open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
     override var mainUrl: String = source.fallbackUrl
     override var name: String = source.displayName
     override var lang: String = "it"
@@ -71,6 +73,7 @@ class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
         // Permit a nearly complete last word, not unrelated titles containing the query.
         val left = expectedSimple.split(" ")
         val right = actualSimple.split(" ")
+        if (expectedSimple.split(" ").all { it in actualSimple.split(" ") }) return 70
         if (left.size != right.size || left.isEmpty()) return 0
         if (left.dropLast(1) != right.dropLast(1)) return 0
         val requestedLast = left.last()
@@ -140,11 +143,12 @@ class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                     uri.host?.lowercase(Locale.ROOT)?.removePrefix("www.") != expectedHost ||
                     uri.path.isNullOrBlank() || uri.path == "/") continue
                 val img = anchor.selectFirst("img") ?: anchor.parent()?.selectFirst("img")
-                val card = anchor.closest("article, .post, .item, .result, .search-result")
+                val card = anchor.closest("article, .post, .posts, .item, .ml-item, .result, .search-result")
                 val options = listOf(
                     anchor.attr("title"),
                     anchor.attr("aria-label"),
-                    card?.selectFirst("h1,h2,h3,h4,.entry-title,.post-title")?.text().orEmpty(),
+                    anchor.attr("oldtitle"),
+                    card?.selectFirst("h1,h2,h3,h4,.entry-title,.post-title,.title,.mli-info h2")?.text().orEmpty(),
                     anchor.selectFirst("h1,h2,h3,h4")?.text().orEmpty(),
                     img?.attr("alt").orEmpty(),
                     anchor.text()
@@ -165,8 +169,7 @@ class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                 .thenBy { it.title.length })
             .take(40)
             .map { hit ->
-                val isSeries = source.isSeries ||
-                    URI(hit.url).path.contains("serie", ignoreCase = true)
+                val isSeries = URI(hit.url).path.contains("serie", ignoreCase = true)
                 if (isSeries) {
                     newTvSeriesSearchResponse(hit.title, hit.url, TvType.TvSeries) {
                         posterUrl = hit.poster
@@ -186,43 +189,74 @@ class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
         val expected = URI(mainUrl).host?.lowercase(Locale.ROOT)?.removePrefix("www.")
         val itemUri = URI(url)
         val itemHost = itemUri.host?.lowercase(Locale.ROOT)?.removePrefix("www.")
-        // This specific host is observed in StreamingCommunity search results.
-        // Only explicit provider domains are permitted, not arbitrary URLs.
-        val knownHosts = when (source.id) {
-            "streamingcommunity" -> setOfNotNull(expected,
-                URI(source.fallbackUrl).host?.removePrefix("www."),
-                "streamingunity.dog")
-            else -> setOfNotNull(expected)
-        }
+        val knownHosts = setOfNotNull(expected)
         if (!itemUri.scheme.equals("https", ignoreCase = true) ||
             itemUri.userInfo != null || itemUri.port !in setOf(-1, 443) ||
             itemHost == null || itemHost !in knownHosts)
             throw IllegalArgumentException("URL fuori dal provider")
         val doc: Document = Jsoup.parse(getHtml(url), url)
-        val title = doc.selectFirst("h1")?.text()?.trim()
+        val title = doc.selectFirst("h1, .mvi-title, .title-film")?.text()?.trim()
             ?.takeIf { it.isNotBlank() }
             ?: doc.selectFirst("meta[property=og:title]")?.attr("content")
             ?: "Scheda del catalogo"
         val description = doc.selectFirst("meta[property=og:description]")?.attr("content")
             ?: doc.selectFirst("meta[name=description]")?.attr("content")
             ?: ""
-        val plotText = (description.take(600) +
-            "\n\nScheda informativa: questa versione non include collegamenti video o riproduzione.").trim()
-        val poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
-            ?.takeIf { it.startsWith("https://") }
-        val isSeries = source.isSeries || url.contains("serie", ignoreCase = true)
+        val plotText = doc.selectFirst(".mvi-desc, .fullstory, .full-text, .description")?.text()
+            ?.takeIf { it.isNotBlank() } ?: description
+        val poster = PosterFinder.fromDocument(doc, title) ?: posterFor(url)
+        val episodes = doc.select(".tvseason .les-content a[href], a[href*=/episodio/]")
+            .distinctBy { it.absUrl("href") }.mapNotNull { anchor ->
+                val episodeUrl = anchor.absUrl("href")
+                val match = Regex("stagione-(\\d+)-episodio-(\\d+)").find(episodeUrl)
+                    ?: return@mapNotNull null
+                newEpisode(episodeUrl) {
+                    name = anchor.text()
+                    season = match.groupValues[1].toIntOrNull()
+                    episode = match.groupValues[2].toIntOrNull()
+                }
+            }
+        val isSeries = episodes.isNotEmpty() || URI(url).path.contains("serie", true)
         return if (isSeries) {
-            newTvSeriesLoadResponse(title, url, TvType.TvSeries, emptyList()) {
+            newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
                 this.posterUrl = poster
                 this.plot = plotText
             }
         } else {
-            newMovieLoadResponse(title, url, TvType.Movie, "") {
+            newMovieLoadResponse(title, url, TvType.Movie, url) {
                 this.posterUrl = poster
                 this.plot = plotText
-                this.comingSoon = true
             }
         }
+    }
+
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
+        mainUrl = DomainRegistry.resolve(source.id, source.fallbackUrl)
+        val uri = runCatching { URI(data) }.getOrNull() ?: return false
+        if (uri.scheme != "https" || uri.host != URI(mainUrl).host) return false
+        val doc = runCatching { Jsoup.parse(getHtml(data), data) }.getOrNull() ?: return false
+        if (doc.select(".g-recaptcha, .h-captcha, input[type=password]").isNotEmpty()) return false
+        val embeds = doc.select("#content-embed iframe[src], .movieplay iframe[src], .player iframe[src], iframe[data-src]")
+            .map { it.absUrl(if (it.hasAttr("data-src")) "data-src" else "src") }
+            .filter { runCatching { URI(it).scheme == "https" }.getOrDefault(false) }
+            .distinct().take(10)
+        var found = false
+        for (embed in embeds) {
+            try {
+                loadExtractor(embed, data, subtitleCallback) { link ->
+                    found = true
+                    callback(link)
+                }
+            } catch (error: Exception) {
+                Log.w("FrenkyExtra", "Player unavailable: ${error.javaClass.simpleName}")
+            }
+        }
+        return found
     }
 
     private suspend fun getHtml(url: String): String = withContext(Dispatchers.IO) {
@@ -238,7 +272,7 @@ class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
             val status = connection.responseCode
             if (status != 200) {
                 Log.w("FrenkyCloudStream", "Catalogue ${source.id} HTTP $status")
-                return@withContext ""
+                throw IllegalStateException("Fonte non disponibile: HTTP $status")
             }
             val out = ByteArrayOutputStream()
             connection.inputStream.use { input ->

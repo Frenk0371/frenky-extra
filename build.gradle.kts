@@ -10,9 +10,9 @@ buildscript {
         maven("https://jitpack.io")
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:9.1.1")
+        classpath("com.android.tools.build:gradle:8.7.3")
         classpath("com.lagradost.cloudstream3:gradle:local")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.10")
     }
 }
 
@@ -26,6 +26,7 @@ allprojects {
 
 subprojects {
     apply(plugin = "com.android.library")
+    apply(plugin = "kotlin-android")
 
     apply(plugin = "com.lagradost.cloudstream3.gradle")
 
@@ -34,7 +35,7 @@ subprojects {
     }
 
     extensions.getByType<LibraryExtension>().apply {
-        namespace = "com.frenky.cloudstream"
+        namespace = "com.frenky.extra.${project.name.lowercase()}"
         compileSdk = 35
         defaultConfig {
             minSdk = 21

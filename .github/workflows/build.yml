@@ -12,6 +12,9 @@ on:
       - 'settings.gradle.kts'
       - 'gradle.properties'
       - 'MultiSource/**'
+      - 'FilmPerTutti/**'
+      - 'CasaCinema/**'
+      - 'GuardoSerie/**'
       - '.github/workflows/build.yml'
       - 'repo.json'
   workflow_dispatch:
@@ -28,9 +31,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: recloudstream/gradle
-          ref: 32895aedb6366f5075cb99bbd2e6ce0a7cac325d
+          ref: e9e202f75d858cce8ecec3461a9e89ec48934249
           path: .cloudstream-gradle
           persist-credentials: false
+      - name: Pin plugin transport dependency
+        run: sed -i s/master-SNAPSHOT/v1.2.1/g .cloudstream-gradle/build.gradle.kts
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -43,7 +48,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '9.5.0'
+          gradle-version: '8.9'
       - name: Build extension artifacts
         run: gradle make makePluginsJson --no-daemon
       - name: Publish builds branch
@@ -53,8 +58,8 @@ jobs:
           mkdir -p /tmp/cloudstream-dist
           cp repo.json /tmp/cloudstream-dist/repo.json
           cp build/plugins.json /tmp/cloudstream-dist/plugins.json
-          find MultiSource/build -type f -name '*.cs3' -exec cp {} /tmp/cloudstream-dist/ \;
-          test -n "$(find /tmp/cloudstream-dist -name '*.cs3' -print -quit)"
+          find FilmPerTutti/build CasaCinema/build GuardoSerie/build -type f -name '*.cs3' -exec cp {} /tmp/cloudstream-dist/ \;
+          test "$(find /tmp/cloudstream-dist -name '*.cs3' | wc -l)" -eq 3
           cd /tmp/cloudstream-dist
           git init -b builds
           git config user.name "github-actions[bot]"
