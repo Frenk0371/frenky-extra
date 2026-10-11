@@ -80,3 +80,14 @@ User screenshot from version 4: FilmPerTutti reports API VixSrc HTTP 403. This i
 CasaCinema reports no compatible player. Reproduced using the downloaded actual film page: Jsoup sees zero #vidxgo-player nodes despite the literal iframe declaration in the response; an unclosed preceding script swallows the iframe. The public VixSrc declaration and IMDb identifier remain in script data. The parser now accepts this explicitly declared iframe from the original HTML too, without executing scripts. Regression tests cover valid HTML, the malformed CasaCinema structure, series rejection and unrelated page rejection. This fixes discovery; device API access/playback remains to be tested and may return the same 403.
 
 Version 5 validation: GitHub Actions run 38123921127 succeeded (all three testDebugUnitTest tasks, including the player-discovery regression). The public repo.json, plugins.json and three .cs3 files were fetched again; version 5 ZIP/DEX/manifests/sizes and SHA256 hashes match. CasaCinema recognition is corrected; Android playback is still unconfirmed. FilmPerTutti has a confirmed device-side VixSrc API HTTP 403.
+
+
+## Version 6 — preserve normal application HTTP configuration
+
+The user's tablet browser successfully returned the API JSON with a player src on the same endpoint that reports HTTP 403 in CloudStream. This narrows the failure to a client/session difference; it does not identify the server's reason.
+
+The public VixSrc movie component calls the API through stock Axios before creating the embed iframe. No ad-close prerequisite appears in that component. A separate cloud-browser trial reached the embed but displayed “Please Disable Sandbox”; playback was not verified and no sandbox setting was changed. An external API request using the extension's explicit parameters returned HTTP 200 with src.
+
+Source inspection of NiceHttp 0.4.18 (commit f1dee9dfc5b86a24c65bf8c6e8403d336341dd3e) confirms timeout values are seconds and app.get inherits app.defaultHeaders. Removed the plugin's incomplete User-Agent override instead of introducing a browser fingerprint or an access-control workaround. HLS receives the application's configured User-Agent as well. Corrected the timeout from 20000 seconds to 20 seconds. Non-200 responses now report only a bounded response category, never server text, cookies or signed URLs.
+
+These changes correct request configuration and improve diagnostics; they do not prove why the device received 403 or establish Android playback success. CI and published artifacts must be verified separately.

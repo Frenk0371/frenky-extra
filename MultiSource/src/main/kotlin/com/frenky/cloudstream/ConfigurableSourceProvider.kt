@@ -267,7 +267,8 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                 if (publicPlaylist != null) {
                     callback(newExtractorLink(name, "$name - VixSrc", publicPlaylist.url, ExtractorLinkType.M3U8) {
                         referer = publicPlaylist.referer
-                        headers = mapOf("User-Agent" to "Mozilla/5.0", "Origin" to "https://vixsrc.to")
+                        headers = app.defaultHeaders.filterKeys { it.equals("user-agent", ignoreCase = true) } +
+                            mapOf("Origin" to "https://vixsrc.to")
                     })
                     found = true
                     continue

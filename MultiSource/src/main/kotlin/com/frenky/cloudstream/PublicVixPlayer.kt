@@ -51,13 +51,26 @@ object PublicVixPlayer {
 
     private suspend fun read(url: String, referer: String, stage: String): String {
         val response = try {
-            app.get(url, referer = referer, headers = mapOf("User-Agent" to "Mozilla/5.0"), timeout = 20000L)
+            // NiceHttp timeouts are in seconds. Preserve the app's configured
+            // headers rather than overriding its User-Agent with a partial value.
+            app.get(url, referer = referer, timeout = 20L)
         } catch (error: Exception) {
             if (error is kotlinx.coroutines.CancellationException) throw error
             // Do not log signed URLs, tokens or response bodies.
             throw PlayerFailure(stage, error.javaClass.simpleName)
         }
-        if (response.code != 200) throw PlayerFailure(stage, "HTTP ${response.code}")
+        if (response.code != 200) {
+            // Report only a category, never server bodies, cookies or signed URLs.
+            val body = response.text.take(12000).lowercase()
+            val category = when {
+                listOf("verify you are human", "checking your browser", "cf-chl-", "g-recaptcha", "h-captcha")
+                    .any { body.contains(it) } -> "verifica di accesso richiesta"
+                body.trimStart().startsWith("{") -> "risposta JSON"
+                body.contains("<html") || body.contains("<!doctype html") -> "pagina HTML"
+                else -> "risposta del server"
+            }
+            throw PlayerFailure(stage, "HTTP ${response.code} ($category)")
+        }
         val text = response.text
         if (text.length > 600000) throw PlayerFailure(stage, "risposta troppo grande")
         if (text.contains("g-recaptcha") || text.contains("h-captcha")) {
