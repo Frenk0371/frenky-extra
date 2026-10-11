@@ -6,7 +6,7 @@ In CloudStream aggiungere:
 
 https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/repo.json
 
-## Stato della versione 7
+## Stato della versione 8
 
 Beta: compilazione e disponibilità dei pacchetti non certificano la riproduzione. Consultare `TEST_RESULTS.md` prima di considerare una fonte funzionante.
 
@@ -46,3 +46,6 @@ Versione 5: corretto il riconoscimento del player CasaCinema con HTML malformato
 Versione 6: rimossi gli override dell’User-Agent incompleto nel resolver VixSrc; le richieste usano la configurazione HTTP standard dell’app e il player HLS conserva lo stesso User-Agent configurato. Corretto il timeout NiceHttp da 20000 a 20 secondi. Errori HTTP classificati senza mostrare corpi, cookie o URL firmati. Nessun bypass e nessuna riproduzione Android confermata.
 
 Versione 7: diagnostica delle richieste VixSrc con percorso API pubblico, stato HTTP, tipo MIME e destinazione dopo redirect. Query, frammenti, credenziali, percorsi firmati e contenuti del server sono omessi. La presenza di header Cloudflare non prova la causa del rifiuto. Il log Android delle 12:25 conferma HTTP 403 su entrambi i provider; questa versione raccoglie informazioni, non certifica una correzione della riproduzione.
+
+
+Versione 8: se l’API VixSrc restituisce HTTP 403, FilmPerTutti/CasaCinema propongono “Apri player interno”. Dopo la scelta dell’utente, la pagina pubblica del film si apre in una WebView visibile dentro CloudStream. Play ed eventuali verifiche restano manuali. Non vengono estratti flussi, trasferiti cookie, automatizzati controlli o modificato l’User-Agent. Questo percorso usa il player web del sito, non il lettore nativo: avanzamento, casting e sottotitoli CloudStream non sono integrati. Le navigazioni principali restano sul dominio VixSrc; HTTPS obbligatorio, accesso ai file e bridge JavaScript disabilitati. La riproduzione sul tablet resta da verificare.

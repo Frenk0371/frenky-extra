@@ -261,6 +261,7 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
         }
         var found = false
         var playerFailure: String? = null
+        var interactivePage: String? = null
         for (embed in embeds.distinct().take(10)) {
             try {
                 val publicPlaylist = if (URI(embed).host == "vixsrc.to") PublicVixPlayer.resolve(embed) else null
@@ -281,6 +282,10 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                 if (error is kotlinx.coroutines.CancellationException) throw error
                 val detail = if (error is PublicVixPlayer.PlayerFailure) error.message else error.javaClass.simpleName
                 if (URI(embed).host == "vixsrc.to") playerFailure = detail
+                if (error is PublicVixPlayer.PlayerFailure && error.stage == "API VixSrc" &&
+                    error.detail.startsWith("HTTP 403")) {
+                    interactivePage = InternalPlayerPage.movie(embed)
+                }
                 Log.w("FrenkyExtra", "${source.id}: $detail")
             } catch (error: LinkageError) {
                 playerFailure = "Incompatibilità con l'app: ${error.javaClass.simpleName}"
@@ -288,6 +293,10 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
             }
         }
         if (!found) {
+            if (interactivePage != null) {
+                InternalPublicPlayer.offer(name, interactivePage)
+                return false // No native extractor link has been produced.
+            }
             val message = "$name: " + (playerFailure ?: "nessun lettore compatibile disponibile")
             Handler(Looper.getMainLooper()).post {
                 com.lagradost.cloudstream3.CloudStreamApp.context?.let { context ->
