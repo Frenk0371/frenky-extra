@@ -1,4 +1,4 @@
-import com.android.build.gradle.BaseExtension
+import com.android.build.api.dsl.LibraryExtension
 import com.lagradost.cloudstream3.gradle.CloudstreamExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
@@ -10,9 +10,9 @@ buildscript {
         maven("https://jitpack.io")
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.7.3")
-        classpath("com.github.recloudstream:gradle:master-SNAPSHOT")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21")
+        classpath("com.android.tools.build:gradle:9.1.1")
+        classpath("com.lagradost.cloudstream3:gradle:local")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.0")
     }
 }
 
@@ -26,19 +26,20 @@ allprojects {
 
 subprojects {
     apply(plugin = "com.android.library")
-    apply(plugin = "kotlin-android")
+
     apply(plugin = "com.lagradost.cloudstream3.gradle")
 
     extensions.getByName<CloudstreamExtension>("cloudstream").apply {
         setRepo(System.getenv("GITHUB_REPOSITORY") ?: "Frenk0371/frenky-extra")
     }
 
-    extensions.getByName<BaseExtension>("android").apply {
+    extensions.getByType<LibraryExtension>().apply {
         namespace = "com.frenky.cloudstream"
+        compileSdk = 35
         defaultConfig {
             minSdk = 21
-            compileSdkVersion(35)
-            targetSdk = 35
+            
+            
         }
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_1_8

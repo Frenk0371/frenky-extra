@@ -12,8 +12,8 @@ data class Source(
 
 object SourceList {
     val all = listOf(
-        Source("filmpertutti", "FilmPerTutti (test)", "https://film-pertutti.fit/", SearchMode.WORDPRESS),
-        Source("casacinema", "CasaCinema (test)", "https://casa-cinema.boats/", SearchMode.WORDPRESS),
-        Source("guardoserie_new", "GuardoSerie (test)", "https://guardoseries.sbs/", SearchMode.WORDPRESS, true)
+        Source("filmpertutti", "FilmPerTutti", "https://film-pertutti.fit/", SearchMode.DLE_GET),
+        Source("casacinema", "CasaCinema", "https://casa-cinema.boats/", SearchMode.DLE_GET),
+        Source("guardoserie_new", "GuardoSerie", "https://guardoseries.sbs/", SearchMode.WORDPRESS, true)
     )
 }
