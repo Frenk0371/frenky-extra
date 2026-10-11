@@ -6,6 +6,18 @@ Build #4, job 114411166446: JitPack risolve lo snapshot al commit `32895aedb6`, 
 
 Run 38120099770: compilazione riuscita usando il checkout del plugin ufficiale come included build. Era una build intermedia con un solo pacchetto; non costituisce la release finale dei tre provider.
 
+## Release pubblicata e verificata
+
+Run finale [38120575527](https://github.com/Frenk0371/frenky-extra/actions/runs/38120575527): successo, commit sorgente `36a7988189e43f2dd028cec8ccaa3b67099f3302`.
+
+- Test JUnit delle locandine eseguiti nei tre moduli: successo.
+- Pubblicati solo `FilmPerTutti.cs3`, `CasaCinema.cs3`, `GuardoSerie.cs3`, tutti versione 2.
+- `repo.json` e `plugins.json` scaricati dagli URL pubblici del ramo `builds`.
+- Tutti i tre `.cs3` scaricati dagli URL in `plugins.json`: ZIP integri, DEX e manifest presenti, versione e classe plugin corretti.
+- Dimensioni effettive: FilmPerTutti 34849 byte, CasaCinema 34848 byte, GuardoSerie 34846 byte.
+- SHA-256 calcolati sui file scaricati e confrontati con `fileHash`: tutti corrispondenti.
+- I test JUnit coprono il parser delle locandine; non sono test di riproduzione del runtime Android.
+
 ## Test effettivi sulle fonti pubbliche
 
 Richieste HTTP reali a homepage, ricerche e schede; nessun bypass. I test non sono stati eseguiti dentro un dispositivo Android con CloudStream. Non confondere i risultati HTTP con test riusciti del provider nell'app.
