@@ -6,7 +6,7 @@ In CloudStream aggiungere:
 
 https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/repo.json
 
-## Stato della versione 3
+## Stato della versione 4
 
 Beta: compilazione e disponibilità dei pacchetti non certificano la riproduzione. Consultare `TEST_RESULTS.md` prima di considerare una fonte funzionante.
 
@@ -15,7 +15,7 @@ Beta: compilazione e disponibilità dei pacchetti non certificano la riproduzion
 - Locandine tramite immagini lazy, metadati e CSS delle schede.
 - Episodi GuardoSerie estratti da collegamenti realmente presenti. Nessun episodio creato sulla base di selettori numerici generici.
 - Lettori pubblici delegati agli estrattori presenti nella versione installata di CloudStream. Supporto VixSrc per il flusso pubblico API → embed → HLS. Nessun aggiramento DRM, CAPTCHA, autenticazione o browser automatizzato.
-- FilmPerTutti/CasaCinema: lettore VixSrc verificato sul campione L’allenatore nel pallone; cataloghi serie/episodi non ancora completamente implementati.
+- FilmPerTutti/CasaCinema: VixSrc verificato esternamente e nel browser del tablet sul campione L’allenatore nel pallone. La versione 3 fallisce nel CloudStream del tablet; la versione 4 usa il client HTTP dell’app e mostra errori per fase. Riproduzione CloudStream ancora da confermare; cataloghi serie/episodi incompleti.
 - Homepage vuota: usare la ricerca.
 
 ## Compilazione

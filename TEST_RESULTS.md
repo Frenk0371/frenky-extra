@@ -69,3 +69,5 @@ Verifica finale della versione 3: run 38121657491 riuscito; test JUnit in tutti 
 The user confirmed both providers are version 3 on CloudStream 4.8.0. The same film plays on the tablet browser with Player2 (VixSrc), while the extension still reports no links. This disproves a claim of end-to-end success on Android.
 
 Version 4 uses CloudStream's standard SSL-verifying HTTP client for the VixSrc requests and reports the failed stage and HTTP status/exception type. It preserves normal browser-declared URLs, referers and HLS validation. It does not bypass access checks. Cancellation is propagated. Diagnostic messages do not include signed URLs, tokens or response bodies. The root cause on the tablet and playback in CloudStream remain unconfirmed pending device retry.
+
+Validation: GitHub Actions run 38123532061 succeeded, including all three testDebugUnitTest tasks and distribution validation. All three public .cs3 files, plugins.json and repo.json were downloaded again; version 4 manifests, DEX payloads, ZIP integrity, sizes and SHA256 hashes match. No claim of Android playback success is made.
