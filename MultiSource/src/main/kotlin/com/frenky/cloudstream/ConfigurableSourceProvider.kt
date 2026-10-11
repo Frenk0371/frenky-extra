@@ -203,7 +203,9 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
         val description = doc.selectFirst("meta[property=og:description]")?.attr("content")
             ?: doc.selectFirst("meta[name=description]")?.attr("content")
             ?: ""
-        val plotText = doc.selectFirst(".mvic-desc .desc, .fullstory, .full-text, .description, .text")?.text()
+        val plotNode = doc.selectFirst(".mvic-desc .desc, .fullstory, .full-text, .description, .text")?.clone()
+        plotNode?.select(".simplesocialbuttons, script, style")?.remove()
+        val plotText = plotNode?.text()
             ?.takeIf { it.isNotBlank() } ?: description
         val poster = PosterFinder.fromDocument(doc, title) ?: posterFor(url)
         val episodes = doc.select(".tvseason .les-content a[href], a[href*=/episodio/]")

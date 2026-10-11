@@ -2,6 +2,7 @@ version = 2
 
 android {
     sourceSets["main"].java.srcDir("../MultiSource/src/main/kotlin")
+    sourceSets["test"].java.srcDir("../MultiSource/src/test/kotlin")
 }
 
 cloudstream {
@@ -12,3 +13,5 @@ cloudstream {
     language = "it"
     requiresResources = false
 }
+
+dependencies { testImplementation("junit:junit:4.13.2") }

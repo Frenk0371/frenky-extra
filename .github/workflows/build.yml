@@ -49,7 +49,7 @@ jobs:
         with:
           gradle-version: '9.5.0'
       - name: Build extension artifacts
-        run: gradle make makePluginsJson --no-daemon
+        run: gradle testDebugUnitTest make makePluginsJson --no-daemon
       - name: Publish builds branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

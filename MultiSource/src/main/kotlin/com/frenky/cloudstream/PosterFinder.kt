@@ -31,6 +31,9 @@ object PosterFinder {
         }.filter(::usable)
 
     fun fromDocument(doc: Document, title: String = ""): String? {
+        val cover = doc.select("img.wp-post-image, img.thumbnail, #mv-info img").asSequence()
+            .mapNotNull { candidates(it).firstOrNull() }.firstOrNull()
+        if (cover != null) return cover
         val meta = listOf(
             "meta[property=og:image]", "meta[name=twitter:image]",
             "meta[property=twitter:image]", "meta[itemprop=image]"
