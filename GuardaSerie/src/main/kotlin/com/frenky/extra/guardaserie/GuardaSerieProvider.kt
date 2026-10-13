@@ -51,12 +51,12 @@ class GuardaSerieProvider : MainAPI() {
         val meta = GuardaSeriePages.metadata(doc, base)
         check(meta.title.isNotBlank()) { "$name: scheda priva di titolo" }
         val episodes = GuardaSeriePages.episodes(doc, page).map { item ->
-            newEpisode(url = JSONObject().put("page", page).put("season", item.season).put("episode", item.episode).toString(), fix = false) {
+            newEpisode(url = JSONObject().put("page", page).put("season", item.season).put("episode", item.episode).toString(), fix = false, initializer = {
                 name = item.title ?: "Episodio ${item.episode}"
                 season = item.season
                 episode = item.episode
                 meta.poster?.let { posterUrl = it }
-            }
+            })
         }
         check(episodes.isNotEmpty()) { "$name: nessun episodio dichiarato dal sito" }
         return newTvSeriesLoadResponse(meta.title, page, TvType.TvSeries, episodes) {
