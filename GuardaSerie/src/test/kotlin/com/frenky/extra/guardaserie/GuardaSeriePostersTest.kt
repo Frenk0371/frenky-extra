@@ -10,6 +10,15 @@ import org.junit.Test
 class GuardaSeriePostersTest {
     private val base = "https://guarda-serie.ovh"
 
+    @Test fun archiveAndSearchImagesFillRankedCardsWithoutDetailRequests() = runBlocking {
+        val ranked = listOf(GuardaSeriePages.Card("Dutton Ranch", "$base/detail/tv-299167-dutton-ranch", null))
+        val resolver = GuardaSeriePosters()
+        val observed = ranked.single().copy(poster = "$base/img/w200/poster.jpg")
+        resolver.remember(listOf(observed))
+        val result = resolver.resolve(ranked) { error("A cached catalogue poster must not fetch a detail page") }
+        assertEquals(listOf(observed), result)
+    }
+
     @Test fun rankedTitleGetsDetailPosterAndReusesCache() = runBlocking {
         val cards = GuardaSeriePages.cards(Jsoup.parse("""<a class="ranked-link" href="/detail/tv-299167-dutton-ranch"><span class="rank-name">Dutton Ranch</span></a>"""), base)
         assertNull(cards.single().poster)

@@ -14,10 +14,17 @@ class GuardaSeriePosters {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>?): Boolean = size > 256
     }
 
+    fun remember(cards: List<GuardaSeriePages.Card>) {
+        synchronized(cache) {
+            cards.forEach { card -> card.poster?.let { cache[card.url] = it } }
+        }
+    }
+
     suspend fun resolve(
         cards: List<GuardaSeriePages.Card>,
         loadPoster: suspend (String) -> String?
     ): List<GuardaSeriePages.Card> = coroutineScope {
+        remember(cards)
         cards.map { card ->
             async {
                 if (card.poster != null) return@async card

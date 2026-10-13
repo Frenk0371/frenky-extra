@@ -30,10 +30,27 @@ class GuardaSerieProvider : MainAPI() {
         check(!listOf("cf-chl-", "g-recaptcha", "h-captcha", "verify you are human").any { body.contains(it, true) }) { "Verifica di accesso richiesta" }
         return Jsoup.parse(body, url)
     }
-    private suspend fun results(doc: Document, base: String): List<SearchResponse> = posters.resolve(GuardaSeriePages.cards(doc, base)) { url ->
-        GuardaSeriePages.metadata(document(url, base, timeout = 8L), base).poster
-    }.map { card ->
-        newTvSeriesSearchResponse(card.title, card.url) { posterUrl = card.poster }
+    private suspend fun results(doc: Document, base: String, home: Boolean = false): List<SearchResponse> {
+        val cards = GuardaSeriePages.cards(doc, base)
+        // The archive already has real poster-bearing records, including the
+        // ranked titles reported by the user. Prefer one catalogue request over
+        // a separate detail-page request for every title.
+        if (home && cards.any { it.poster == null }) {
+            try {
+                posters.remember(GuardaSeriePages.cards(document(GuardaSeriePages.archive(base, 1), base), base))
+            } catch (error: Exception) {
+                if (error is CancellationException) throw error
+            }
+        }
+        val titles = cards.associate { it.url to it.title }
+        return posters.resolve(cards) { url ->
+            val matches = GuardaSeriePages.cards(document(GuardaSeriePages.search(base, titles.getValue(url)), base), base)
+            // Match the exact detail URL, never a similarly named series.
+            matches.singleOrNull { it.url == url }?.poster
+                ?: GuardaSeriePages.metadata(document(url, base), base).poster
+        }.map { card ->
+            newTvSeriesSearchResponse(card.title, card.url) { posterUrl = card.poster }
+        }
     }
     override suspend fun search(query: String): List<SearchResponse> {
         val base = base()
@@ -45,7 +62,7 @@ class GuardaSerieProvider : MainAPI() {
         if (home && page > 1) return newHomePageResponse(HomePageList(request.name, emptyList()), hasNext = false)
         val doc = document(if (home) "$base/" else GuardaSeriePages.archive(base, page), base)
         val next = !home && doc.select(".mlnew-pagination a").any { it.attr("href").contains("page=${page + 1}") }
-        return newHomePageResponse(HomePageList(request.name, results(doc, base)), hasNext = next)
+        return newHomePageResponse(HomePageList(request.name, results(doc, base, home)), hasNext = next)
     }
     override suspend fun load(url: String): LoadResponse {
         val base = base()
