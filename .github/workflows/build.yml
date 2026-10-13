@@ -1,7 +1,7 @@
 name: Build Frenky Extra
 
 concurrency:
-  group: frenky-extra-build
+  group: frenky-extra-build-${{ github.ref }}
   cancel-in-progress: true
 
 on:
@@ -18,6 +18,8 @@ on:
       - '.github/workflows/build.yml'
       - 'repo.json'
       - 'scripts/**'
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -48,6 +50,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.0'
+      - name: Test distribution validator
+        run: python -m unittest discover -s scripts/tests -v
       - name: Build extension artifacts
         run: gradle testDebugUnitTest make makePluginsJson --no-daemon
       - name: Read existing published movie providers
@@ -56,9 +60,7 @@ jobs:
           ref: builds
           path: .published-builds
           persist-credentials: false
-      - name: Publish builds branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate distribution
         run: |
           mkdir -p /tmp/cloudstream-dist
           cp repo.json /tmp/cloudstream-dist/repo.json
@@ -67,6 +69,16 @@ jobs:
           python scripts/preserve_movie_providers.py /tmp/cloudstream-dist .published-builds
           test "$(find /tmp/cloudstream-dist -name '*.cs3' | wc -l)" -eq 3
           python scripts/verify_dist.py /tmp/cloudstream-dist .published-builds
+      - name: Upload review artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: reviewed-extension-build
+          path: /tmp/cloudstream-dist
+      - name: Publish builds branch
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
           cd /tmp/cloudstream-dist
           git init -b builds
           git config user.name "github-actions[bot]"
