@@ -175,7 +175,7 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                 .thenBy { it.title.length })
             .take(40)
             .map { hit ->
-                val isSeries = URI(hit.url).path.contains("serie", ignoreCase = true)
+                val isSeries = source.isSeries || URI(hit.url).path.contains("serie", ignoreCase = true)
                 if (isSeries) {
                     newTvSeriesSearchResponse(hit.title, hit.url, TvType.TvSeries) {
                         posterUrl = hit.poster
