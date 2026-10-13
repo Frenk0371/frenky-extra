@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Read-only diagnostics for candidate GuardaSerie domain. No bypasses or domain changes."""
 import json
+import socket
+import ssl
 import urllib.request
 import urllib.error
 from html.parser import HTMLParser
@@ -42,6 +44,22 @@ def run():
                             "html_counts": {k: parser.counts.get(k, 0) for k in ["a", "img", "form", "script", "iframe"]}})
     except urllib.error.HTTPError as e:
         out.update({"result": "http_error", "http_status": e.code})
+    except urllib.error.URLError as e:
+        cause = e.reason
+        if isinstance(cause, socket.gaierror):
+            category = "dns_error"
+        elif isinstance(cause, (socket.timeout, TimeoutError)):
+            category = "timeout"
+        elif isinstance(cause, ssl.SSLError):
+            category = "tls_error"
+        elif isinstance(cause, ConnectionRefusedError):
+            category = "connection_refused"
+        elif isinstance(cause, OSError):
+            category = "network_error"
+        else:
+            category = "url_error"
+        out.update({"result": category, "reason_type": type(cause).__name__,
+                    "reason_code": getattr(cause, "errno", None)})
     except Exception as e:
         out.update({"result": "connection_error", "error_type": type(e).__name__})
     with open("guardaserie-diagnostic.json", "w", encoding="utf-8") as f:
