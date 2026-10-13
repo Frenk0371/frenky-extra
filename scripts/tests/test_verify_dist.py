@@ -19,9 +19,9 @@ class DistributionTests(unittest.TestCase):
         self.dist.mkdir()
         self.previous.mkdir()
         import re
-        self.version = int(re.search(r'(?m)^version\s*=\s*(\d+)', (ROOT / 'GuardoSerie/build.gradle.kts').read_text())[1])
+        self.version = int(re.search(r'(?m)^version\s*=\s*(\d+)', (ROOT / 'GuardaSerie/build.gradle.kts').read_text())[1])
         self.entries = []
-        for name, version in [('FilmPerTutti', 8), ('CasaCinema', 8), ('GuardaSerie', 1), ('GuardoSerie', self.version)]:
+        for name, version in [('FilmPerTutti', 8), ('CasaCinema', 8), ('GuardaSerie', self.version)]:
             package = self.dist / (name + '.cs3')
             with ZipFile(package, 'w') as archive:
                 archive.writestr('classes.dex', b'dex\nsynthetic-validator-fixture')
@@ -55,19 +55,15 @@ class DistributionTests(unittest.TestCase):
         self.write_entries()
         self.assertNotEqual(self.validate().returncode, 0)
 
-    def test_modified_previous_guardo_package_is_rejected(self):
-        package = self.dist / 'GuardoSerie.cs3'
-        with ZipFile(package, 'a') as archive:
-            archive.writestr('unexpected.txt', 'change')
-        self.entries[-1]['fileSize'] = package.stat().st_size
-        self.write_entries()
+    def test_obsolete_guardo_package_is_rejected(self):
+        (self.dist / 'GuardoSerie.cs3').write_bytes(b'obsolete')
         self.assertNotEqual(self.validate().returncode, 0)
 
     def test_stale_manifest_version_is_rejected(self):
-        package = self.dist / 'GuardoSerie.cs3'
+        package = self.dist / 'GuardaSerie.cs3'
         with ZipFile(package, 'w') as archive:
             archive.writestr('classes.dex', b'dex\nfixture')
-            archive.writestr('manifest.json', json.dumps({'version': self.version - 1, 'pluginClassName': 'GuardoSeriePlugin'}))
+            archive.writestr('manifest.json', json.dumps({'version': self.version - 1, 'pluginClassName': 'GuardaSeriePlugin'}))
         self.entries[-1]['fileSize'] = package.stat().st_size
         self.write_entries()
         self.assertNotEqual(self.validate().returncode, 0)

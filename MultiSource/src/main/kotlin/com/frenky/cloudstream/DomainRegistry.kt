@@ -62,7 +62,7 @@ object DomainRegistry {
                 val doc = Jsoup.parse(read(candidate, 600000), candidate)
                 val actual = doc.title().lowercase().filter { it.isLetterOrDigit() }
                 val expected = entry.getString("name").lowercase().filter { it.isLetterOrDigit() }
-                check(actual.contains(expected) || (sourceId == "guardoserie_new" && actual.contains("guardaserie")))
+                check(actual.contains(expected))
                 check(doc.select("form, a[href]").size > 10)
             }
             candidate.trimEnd('/')

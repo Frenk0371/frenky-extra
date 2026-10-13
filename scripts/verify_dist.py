@@ -5,18 +5,11 @@ from zipfile import ZipFile
 import sys
 import re
 root = Path(sys.argv[1])
-expected = {'FilmPerTutti', 'CasaCinema', 'GuardoSerie', 'GuardaSerie'}
+expected = {'FilmPerTutti', 'CasaCinema', 'GuardaSerie'}
 source_root = Path(__file__).resolve().parents[1]
-version_matches = re.findall(r"(?m)^version\s*=\s*(\d+)\s*$", (source_root / 'GuardoSerie/build.gradle.kts').read_text())
-assert len(version_matches) == 1, 'Expected one integer GuardoSerie source version'
-versions = {'FilmPerTutti': 8, 'CasaCinema': 8, 'GuardoSerie': int(version_matches[0])}
-guarda_versions = re.findall(r'(?m)^version\s*=\s*(\d+)\s*$', (source_root / 'GuardaSerie/build.gradle.kts').read_text())
-assert len(guarda_versions) == 1
-versions['GuardaSerie'] = int(guarda_versions[0])
-if len(sys.argv) > 2:
-    published = json.loads((Path(sys.argv[2]) / 'plugins.json').read_text())
-    old_guardo, = [e for e in published if e['internalName'] == 'GuardoSerie']
-    versions['GuardoSerie'] = old_guardo['version']
+version_matches = re.findall(r'(?m)^version\s*=\s*(\d+)\s*$', (source_root / 'GuardaSerie/build.gradle.kts').read_text())
+assert len(version_matches) == 1, 'Expected one integer GuardaSerie source version'
+versions = {'FilmPerTutti': 8, 'CasaCinema': 8, 'GuardaSerie': int(version_matches[0])}
 entries = json.loads((root / 'plugins.json').read_text())
 assert len(entries) == len(expected), entries
 packages = list(root.glob('*.cs3'))
@@ -37,7 +30,7 @@ assert repo['pluginLists'] == ['https://raw.githubusercontent.com/Frenk0371/fren
 if len(sys.argv) > 2:
     previous = Path(sys.argv[2])
     old_entries = json.loads((previous / 'plugins.json').read_text())
-    for name in ('FilmPerTutti', 'CasaCinema', 'GuardoSerie'):
+    for name in ('FilmPerTutti', 'CasaCinema'):
         assert (root / (name + '.cs3')).read_bytes() == (previous / (name + '.cs3')).read_bytes()
         assert [e for e in entries if e['internalName'] == name] == [e for e in old_entries if e['internalName'] == name]
 print(f"Verified: package manifests match expected versions {versions}; ZIP/DEX and catalogue sizes valid.")

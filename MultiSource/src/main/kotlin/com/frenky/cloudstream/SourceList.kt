@@ -13,7 +13,6 @@ data class Source(
 object SourceList {
     val all = listOf(
         Source("filmpertutti", "FilmPerTutti", "https://film-pertutti.fit/", SearchMode.DLE_GET),
-        Source("casacinema", "CasaCinema", "https://casa-cinema.boats/", SearchMode.DLE_GET),
-        Source("guardoserie_new", "GuardoSerie", "https://guardoseries.sbs/", SearchMode.WORDPRESS, true)
+        Source("casacinema", "CasaCinema", "https://casa-cinema.boats/", SearchMode.DLE_GET)
     )
 }

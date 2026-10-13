@@ -17,13 +17,6 @@
       "manual_aliases": []
     },
     {
-      "id": "guardoserie_new",
-      "name": "GuardoSerie",
-      "original_url": "https://guardoseries.sbs/",
-      "current_url": "https://guardoseries.sbs/",
-      "manual_aliases": []
-    },
-    {
       "id": "guardaserie",
       "name": "GuardaSerie",
       "original_url": "https://guarda-serie.ovh/",
