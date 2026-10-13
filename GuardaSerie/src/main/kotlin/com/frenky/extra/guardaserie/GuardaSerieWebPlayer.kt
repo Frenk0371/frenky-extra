@@ -12,10 +12,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.TextView
 import com.lagradost.cloudstream3.CommonActivity
 
 /** Visible, user-operated web player. No extraction, injected scripts or session export. */
@@ -39,26 +36,17 @@ object GuardaSerieWebPlayer {
         val activity = CommonActivity.activity ?: return
         if (activity.isFinishing || activity.isDestroyed) return
         val dialog = Dialog(activity, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
-        val root = LinearLayout(activity).apply {
-            orientation = LinearLayout.VERTICAL
+        // Entire dialog is the browser surface; no overlay or toolbar obstructs TV playback.
+        val content = FrameLayout(activity).apply {
             setBackgroundColor(Color.BLACK)
         }
-        val toolbar = LinearLayout(activity).apply { orientation = LinearLayout.HORIZONTAL }
-        val label = TextView(activity).apply {
-            text = "Player web interno · GuardaSerie"
-            setTextColor(Color.WHITE)
-            setPadding(16, 16, 16, 16)
+        val web = WebView(activity).apply {
+            setBackgroundColor(Color.BLACK)
+            // Prevent Android TV focus decorations around the browser surface.
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+                defaultFocusHighlightEnabled = false
+            }
         }
-        val close = Button(activity).apply {
-            text = "Chiudi"
-            setOnClickListener { dialog.dismiss() }
-        }
-        toolbar.addView(label, LinearLayout.LayoutParams(0, -2, 1f))
-        toolbar.addView(close, LinearLayout.LayoutParams(-2, -2))
-        root.addView(toolbar, LinearLayout.LayoutParams(-1, -2))
-        val content = FrameLayout(activity)
-        root.addView(content, LinearLayout.LayoutParams(-1, 0, 1f))
-        val web = WebView(activity)
         content.addView(web, FrameLayout.LayoutParams(-1, -1))
         web.settings.apply {
             javaScriptEnabled = true
@@ -101,7 +89,7 @@ object GuardaSerieWebPlayer {
             }
             override fun onHideCustomView() = exitFullscreen()
         }
-        dialog.setContentView(root)
+        dialog.setContentView(content)
         dialog.setOnDismissListener {
             exitFullscreen()
             web.stopLoading()
