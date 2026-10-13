@@ -21,7 +21,7 @@ class DistributionTests(unittest.TestCase):
         import re
         self.version = int(re.search(r'(?m)^version\s*=\s*(\d+)', (ROOT / 'GuardoSerie/build.gradle.kts').read_text())[1])
         self.entries = []
-        for name, version in [('FilmPerTutti', 8), ('CasaCinema', 8), ('GuardoSerie', self.version)]:
+        for name, version in [('FilmPerTutti', 8), ('CasaCinema', 8), ('GuardaSerie', 1), ('GuardoSerie', self.version)]:
             package = self.dist / (name + '.cs3')
             with ZipFile(package, 'w') as archive:
                 archive.writestr('classes.dex', b'dex\nsynthetic-validator-fixture')

@@ -5,13 +5,16 @@ from zipfile import ZipFile
 import sys
 import re
 root = Path(sys.argv[1])
-expected = {'FilmPerTutti', 'CasaCinema', 'GuardoSerie'}
+expected = {'FilmPerTutti', 'CasaCinema', 'GuardoSerie', 'GuardaSerie'}
 source_root = Path(__file__).resolve().parents[1]
 version_matches = re.findall(r"(?m)^version\s*=\s*(\d+)\s*$", (source_root / 'GuardoSerie/build.gradle.kts').read_text())
 assert len(version_matches) == 1, 'Expected one integer GuardoSerie source version'
 versions = {'FilmPerTutti': 8, 'CasaCinema': 8, 'GuardoSerie': int(version_matches[0])}
+guarda_versions = re.findall(r'(?m)^version\s*=\s*(\d+)\s*$', (source_root / 'GuardaSerie/build.gradle.kts').read_text())
+assert len(guarda_versions) == 1
+versions['GuardaSerie'] = int(guarda_versions[0])
 entries = json.loads((root / 'plugins.json').read_text())
-assert len(entries) == 3, entries
+assert len(entries) == len(expected), entries
 packages = list(root.glob('*.cs3'))
 assert {p.stem for p in packages} == expected
 for package in packages:

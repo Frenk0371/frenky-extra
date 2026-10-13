@@ -15,6 +15,7 @@ on:
       - 'FilmPerTutti/**'
       - 'CasaCinema/**'
       - 'GuardoSerie/**'
+      - 'GuardaSerie/**'
       - '.github/workflows/build.yml'
       - 'repo.json'
       - 'scripts/**'
@@ -65,9 +66,9 @@ jobs:
           mkdir -p /tmp/cloudstream-dist
           cp repo.json /tmp/cloudstream-dist/repo.json
           cp build/plugins.json /tmp/cloudstream-dist/plugins.json
-          find GuardoSerie/build -type f -name '*.cs3' -exec cp {} /tmp/cloudstream-dist/ \;
+          find GuardoSerie/build GuardaSerie/build -type f -name '*.cs3' -exec cp {} /tmp/cloudstream-dist/ \;
           python scripts/preserve_movie_providers.py /tmp/cloudstream-dist .published-builds
-          test "$(find /tmp/cloudstream-dist -name '*.cs3' | wc -l)" -eq 3
+          test "$(find /tmp/cloudstream-dist -name '*.cs3' | wc -l)" -eq 4
           python scripts/verify_dist.py /tmp/cloudstream-dist .published-builds
       - name: Upload review artifacts
         uses: actions/upload-artifact@v4
