@@ -1,3 +1,3 @@
 includeBuild(".cloudstream-gradle")
 rootProject.name = "FrenkyExtra"
-include(":FilmPerTutti", ":CasaCinema", ":GuardoSerie")
+include(":FilmPerTutti", ":CasaCinema", ":GuardaSerie")

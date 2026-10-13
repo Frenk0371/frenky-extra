@@ -1,4 +1,4 @@
-package com.frenky.extra.guardoserie
+package com.frenky.extra.guardaserie
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -19,15 +19,15 @@ import android.widget.TextView
 import com.lagradost.cloudstream3.CommonActivity
 
 /** Visible, user-operated web player. No extraction, injected scripts or session export. */
-object GuardoSerieWebPlayer {
+object GuardaSerieWebPlayer {
     fun offer(name: String, url: String) {
-        val page = GuardoSeriePages.page(url) ?: return
+        val page = GuardaSeriePages.player(url) ?: return
         Handler(Looper.getMainLooper()).post {
             val activity = CommonActivity.activity ?: return@post
             if (activity.isFinishing || activity.isDestroyed) return@post
             AlertDialog.Builder(activity)
                 .setTitle("$name — player interno")
-                .setMessage("Nessun link disponibile per il lettore diretto. Puoi provare il player web dentro l’app e scegliere il player e premere Play sul sito. L’avanzamento non viene salvato in CloudStream.")
+                .setMessage("Nessun link disponibile per il lettore diretto. Puoi provare il player web dentro l’app e premere Play sul sito. L’avanzamento non viene salvato in CloudStream.")
                 .setPositiveButton("Apri player interno") { _, _ -> open(page) }
                 .setNegativeButton("Chiudi", null)
                 .show()
@@ -45,7 +45,7 @@ object GuardoSerieWebPlayer {
         }
         val toolbar = LinearLayout(activity).apply { orientation = LinearLayout.HORIZONTAL }
         val label = TextView(activity).apply {
-            text = "Player web interno · GuardoSerie"
+            text = "Player web interno · GuardaSerie"
             setTextColor(Color.WHITE)
             setPadding(16, 16, 16, 16)
         }
@@ -73,11 +73,11 @@ object GuardoSerieWebPlayer {
         }
         web.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean =
-                request == null || (request.isForMainFrame && !GuardoSeriePages.navigation(request.url.toString()))
+                request == null || (request.isForMainFrame && !GuardaSeriePages.navigation(request.url.toString()))
 
             @Deprecated("Needed for Android 5 and 6")
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean =
-                url == null || !GuardoSeriePages.navigation(url)
+                url == null || !GuardaSeriePages.navigation(url)
         }
         var fullscreen: View? = null
         var fullscreenCallback: WebChromeClient.CustomViewCallback? = null

@@ -1,4 +1,4 @@
-"""Publish GuardoSerie while preserving the two confirmed movie providers exactly."""
+"""Stage GuardaSerie beta while preserving the confirmed movie providers exactly."""
 import json
 import shutil
 import sys
@@ -14,4 +14,4 @@ for name in ('FilmPerTutti', 'CasaCinema'):
     current = [e for e in current if e['internalName'] != name]
     current.append(old_entry)
 (dist / 'plugins.json').write_text(json.dumps(current, indent=4) + '\n')
-print('Preserved FilmPerTutti and CasaCinema version 8 packages and metadata.')
+print('Preserved FilmPerTutti and CasaCinema published packages and metadata byte-for-byte.')

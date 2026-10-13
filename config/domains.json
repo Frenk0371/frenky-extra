@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-11",
+  "updated_at": "2026-10-13",
   "sources": [
     {
       "id": "filmpertutti",
@@ -17,11 +17,16 @@
       "manual_aliases": []
     },
     {
-      "id": "guardoserie_new",
-      "name": "GuardoSerie",
-      "original_url": "https://guardoseries.sbs/",
-      "current_url": "https://guardoseries.sbs/",
-      "manual_aliases": []
+      "id": "guardaserie",
+      "name": "GuardaSerie",
+      "original_url": "https://guarda-serie.ovh/",
+      "current_url": "https://guarda-serie.ovh/",
+      "manual_aliases": [],
+      "provenance": {
+        "provider_source_url": "https://github.com/DieGon7771/ItaliaInStreaming/blob/05a71b2636da2d9f60fcdde28e2ff7182891e138/GuardaSerie/src/main/kotlin/it/dogior/hadEnough/GuardaSerie.kt",
+        "browser_checked_at": "2026-10-13",
+        "candidate_wiki_verified": false
+      }
     }
   ]
 }
