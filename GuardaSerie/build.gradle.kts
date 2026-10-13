@@ -1,6 +1,6 @@
 version = 1
 android {
-    sourceSets["main"].kotlin.srcDir(layout.buildDirectory.dir("generated/domain-registry"))
+    sourceSets["main"].kotlin.srcDir(layout.buildDirectory.dir("generated/domain-registry").get().asFile)
 }
 cloudstream {
     description = "GuardaSerie: dominio originale verificato; catalogo e player pubblico, prova Android richiesta"
