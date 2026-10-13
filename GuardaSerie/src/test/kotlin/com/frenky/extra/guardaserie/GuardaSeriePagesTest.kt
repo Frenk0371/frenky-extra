@@ -14,6 +14,18 @@ class GuardaSeriePagesTest {
         <script>var playerBaseURL = "https:\/\/vixsrc.to"; var tmdbID = 1396; var mediaType = "tv";
         var url = playerBaseURL + '/tv/' + tmdbID + '/' + season + '/' + episode + '?lang=it';</script>
     """.trimIndent()
+    @Test fun optionalMetadataMissingDoesNotCrashOrInventValues() {
+        val meta = GuardaSeriePages.metadata(Jsoup.parse("<h1 class='front-title'>Serie</h1>"), base)
+        assertEquals("Serie", meta.title)
+        assertNull(meta.poster); assertNull(meta.plot); assertNull(meta.year); assertNull(meta.state); assertNull(meta.rating)
+        assertTrue(meta.genres.isEmpty())
+    }
+    @Test fun metadataReadsReturningSeriesAndLazyPoster() {
+        val doc = Jsoup.parse("""<h1 class="front-title">Hanno ucciso l'Uomo Ragno</h1><div id="tv-info-poster"><img data-src="/img/poster.jpg"></div><div class="tv-info-right"><div class="tv-info-list"><ul><li>Anno:</li><li>2024 - Returning Series</li></ul><ul><li>Stato:</li><li>Returning Series</li></ul></div>Trama titolo: Una storia.</div>""")
+        val meta = GuardaSeriePages.metadata(doc, base)
+        assertEquals(2024, meta.year); assertEquals("Returning Series", meta.state)
+        assertEquals("$base/img/poster.jpg", meta.poster); assertEquals("Una storia.", meta.plot)
+    }
     @Test fun episodesRequireActualRowsAndDeclaration() {
         val items = GuardaSeriePages.episodes(Jsoup.parse(fixture), page)
         assertEquals(listOf(1 to 1, 1 to 7, 5 to 16), items.map { it.season to it.episode })
