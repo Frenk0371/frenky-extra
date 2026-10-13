@@ -10,7 +10,11 @@ cloudstream {
     language = "it"
     requiresResources = false
 }
-dependencies { testImplementation("junit:junit:4.13.2") }
+dependencies {
+    testImplementation("junit:junit:4.13.2")
+    compileOnly("org.jspecify:jspecify:1.0.0")
+    testImplementation("org.jspecify:jspecify:1.0.0")
+}
 
 val copyDomainRegistry by tasks.registering(Copy::class) {
     from("../MultiSource/src/main/kotlin") { include("**/DomainRegistry.kt") }

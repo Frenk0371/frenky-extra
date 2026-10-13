@@ -3,8 +3,7 @@ package com.frenky.extra.guardaserie
 import com.frenky.cloudstream.DomainRegistry
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addScore
-import com.lagradost.cloudstream3.utils.AppUtils.toJson
-import com.lagradost.cloudstream3.utils.AppUtils.parseJson
+import org.json.JSONObject
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.loadExtractor
 import kotlinx.coroutines.CancellationException
@@ -53,7 +52,7 @@ class GuardaSerieProvider : MainAPI() {
         check(title.isNotBlank()) { "Scheda priva di titolo" }
         val poster = GuardaSeriePages.image(doc.select("#tv-info-poster img").attr("src"), base)
         val episodes = GuardaSeriePages.episodes(doc, page).map { item ->
-            newEpisode(EpisodeData(page, item.season, item.episode).toJson()) {
+            newEpisode(JSONObject().put("page", page).put("season", item.season).put("episode", item.episode).toString()) {
                 name = item.title ?: "Episodio ${item.episode}"
                 season = item.season
                 episode = item.episode
@@ -74,7 +73,10 @@ class GuardaSerieProvider : MainAPI() {
         }
     }
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        val episode = runCatching { parseJson<EpisodeData>(data) }.getOrNull() ?: return false
+        val episode = runCatching {
+            val json = JSONObject(data)
+            EpisodeData(json.getString("page"), json.getInt("season"), json.getInt("episode"))
+        }.getOrNull() ?: return false
         val base = base()
         val page = GuardaSeriePages.detail(episode.page, base) ?: return false
         val doc = document(page, base)

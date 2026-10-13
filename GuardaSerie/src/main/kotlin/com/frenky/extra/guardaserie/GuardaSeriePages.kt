@@ -26,7 +26,7 @@ object GuardaSeriePages {
         // Read poster-bearing cards first so ranked duplicates never erase posters.
         for (element in doc.select(".mlnew, .slider-item, a.ranked-link")) {
             val anchor = if (element.tagName() == "a") element else element.selectFirst(".mlnh-2 h2 a, a[href]") ?: continue
-            val url = detail(URI(base).resolve(anchor.attr("href")).toString(), base) ?: continue
+            val url = runCatching { detail(URI(base).resolve(anchor.attr("href")).toString(), base) }.getOrNull() ?: continue
             val title = element.selectFirst(".mlnh-2 h2 a, .rank-name")?.text()
                 ?.takeIf { it.isNotBlank() } ?: element.selectFirst("img")?.attr("alt")?.takeIf { it.isNotBlank() }
                 ?: anchor.attr("title").ifBlank { anchor.text() }
