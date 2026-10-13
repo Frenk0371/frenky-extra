@@ -25,6 +25,21 @@ class GuardaSerieLiveTest {
             return Jsoup.parse(text, url)
         } finally { connection.disconnect() }
     }
+    @Test fun real883MetadataAndDeclaredEpisodes() {
+        assumeTrue(System.getenv("GUARDASERIE_LIVE_TEST") == "1")
+        val page = "$base/detail/tv-273419-hanno-ucciso-l-uomo-ragno-la-leggendaria-storia-degli-883"
+        val doc = read(page)
+        val meta = GuardaSeriePages.metadata(doc, base)
+        assertTrue(meta.title.contains("883"))
+        assertEquals(2024, meta.year)
+        assertEquals("Returning Series", meta.state)
+        assertNotNull(meta.poster)
+        assertNotNull(meta.plot)
+        val episodes = GuardaSeriePages.episodes(doc, page)
+        assertEquals(8, episodes.size)
+        assertTrue(episodes.all { it.season == 1 })
+        assertEquals("https://vixsrc.to/tv/273419/1/8?lang=it", episodes.last().player)
+    }
     @Test fun realSearchPosterDetailSeasonsAndDeclaredPlayer() {
         assumeTrue(System.getenv("GUARDASERIE_LIVE_TEST") == "1")
         val home = GuardaSeriePages.cards(read("$base/"), base)

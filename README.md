@@ -1,6 +1,6 @@
 # Frenky Extra
 
-Repository CloudStream con **FilmPerTutti v8**, **CasaCinema v8** e **GuardaSerie v1 beta**, installabili come pacchetti `.cs3` indipendenti. L’APK Frenky Stream non viene modificato.
+Repository CloudStream con **FilmPerTutti v8**, **CasaCinema v8** e **GuardaSerie v2 beta**, installabili come pacchetti `.cs3` indipendenti. L’APK Frenky Stream non viene modificato.
 
 URL repository:
 
@@ -18,7 +18,7 @@ Gli estrattori disponibili nell’app sono provati per primi. Se non producono l
 
 Compilazione e test automatici; test HTTP reale su homepage, ricerca con poster e scheda Breaking Bad, cinque stagioni e 62 episodi. La selezione S5E16 nel browser cambia l’iframe verso il lettore dichiarato per quell’episodio.
 
-La riproduzione nativa/WebView Android e l’uso su TV rimangono da verificare. Nel browser Work il lettore video mostra `Please Disable Sandbox`; nessuna protezione è stata modificata. Il provider resta beta.
+L’utente ha confermato video e audio dentro Frenky Stream sul campione Breaking Bad v1. Altri titoli e l’uso su TV rimangono da verificare. La v2 usa la voce distinta **GuardaSerie · Frenky Extra** per evitare la collisione con le altre estensioni omonime; il pacchetto resta GuardaSerie. Il crash degli 883 richiede una nuova prova su questa voce. Nel browser Work il lettore video mostra `Please Disable Sandbox`; nessuna protezione è stata modificata. Il provider resta beta.
 
 GuardoSerie (con la O) viene ritirato su autorizzazione esplicita dell’utente. FilmPerTutti e CasaCinema restano esattamente i pacchetti pubblicati v8, con metadati identici. Le verifiche delle versioni precedenti sono conservate in `TEST_RESULTS.md` come storico.
 
@@ -31,3 +31,5 @@ Il provider legge `config/domains.json` con cache di un’ora. Il monitor contro
 Plugin Gradle ufficiale da commit `32895aedb6366f5075cb99bbd2e6ce0a7cac325d`; Java 17, Gradle 9.5.0, AGP 9.1.1 e Kotlin 2.4.0. La pipeline compila, testa e verifica ZIP/DEX, manifest, versioni e dimensioni, confrontando byte e metadati dei due provider film con la release precedente.
 
 Le PR producono artefatti di revisione e non pubblicano. La pubblicazione dal ramo `main` aggiorna `builds` solo dopo tutti i controlli. La distribuzione contiene esattamente i tre pacchetti correnti.
+
+Diagnosi aggiornata e valutazione di guardaseriex.wiki: [GUARDASERIE_STATUS.md](GUARDASERIE_STATUS.md).

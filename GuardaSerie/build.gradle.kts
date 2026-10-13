@@ -1,9 +1,9 @@
-version = 1
+version = 2
 android {
     sourceSets["main"].kotlin.srcDir(layout.buildDirectory.dir("generated/domain-registry").get().asFile)
 }
 cloudstream {
-    description = "GuardaSerie: dominio originale verificato; catalogo e player pubblico, prova Android richiesta"
+    description = "GuardaSerie: voce Frenky Extra distinta per evitare collisioni; player web verificato sul campione utente"
     authors = listOf("Frenky")
     status = 3
     tvTypes = listOf("TvSeries")

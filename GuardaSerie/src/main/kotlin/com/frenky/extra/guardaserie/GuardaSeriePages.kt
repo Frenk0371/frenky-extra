@@ -7,6 +7,7 @@ import java.net.URLEncoder
 /** Parses only declared catalogue records and the observed public player contract. */
 object GuardaSeriePages {
     data class Card(val title: String, val url: String, val poster: String?)
+    data class Metadata(val title: String, val poster: String?, val plot: String?, val year: Int?, val genres: List<String>, val state: String?, val rating: String?)
     data class Item(val season: Int, val episode: Int, val title: String?, val player: String?)
     fun secure(url: String): URI? = runCatching { URI(url) }.getOrNull()?.takeIf {
         it.scheme == "https" && !it.host.isNullOrBlank() && it.userInfo == null && it.port in setOf(-1, 443)
@@ -36,6 +37,18 @@ object GuardaSeriePages {
             cards[url] = Card(title, url, poster ?: old?.poster)
         }
         return cards.values.toList()
+    }
+    fun metadata(doc: Document, base: String): Metadata {
+        val title = doc.select("h1.front-title, h1.gs-detail-title").text().trim()
+        val imageNode = doc.selectFirst("#tv-info-poster img")
+        val poster = imageNode?.let { image(it.attr("data-src").ifBlank { it.attr("src") }, base) }
+        val info = doc.select(".tv-info-right").text()
+        val yearText = doc.select(".tv-info-list ul:contains(Anno) li:last-child").text()
+        val state = doc.select(".tv-info-list ul:contains(Stato) li:last-child").text().trim().takeIf { it.isNotBlank() }
+        return Metadata(title, poster, info.substringAfter("Trama", "").substringAfter(":", "").trim().takeIf { it.isNotBlank() },
+            Regex("\\b(19|20)\\d{2}\\b").find(yearText)?.value?.toIntOrNull(),
+            doc.select(".tv-info-list ul:contains(Categoria) a").map { it.text() }, state,
+            doc.select(".entry-imdb").text().replace("★", "").trim().takeIf { it.isNotBlank() })
     }
     fun player(url: String): String? {
         val u = secure(url) ?: return null
