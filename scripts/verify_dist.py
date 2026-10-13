@@ -13,6 +13,10 @@ versions = {'FilmPerTutti': 8, 'CasaCinema': 8, 'GuardoSerie': int(version_match
 guarda_versions = re.findall(r'(?m)^version\s*=\s*(\d+)\s*$', (source_root / 'GuardaSerie/build.gradle.kts').read_text())
 assert len(guarda_versions) == 1
 versions['GuardaSerie'] = int(guarda_versions[0])
+if len(sys.argv) > 2:
+    published = json.loads((Path(sys.argv[2]) / 'plugins.json').read_text())
+    old_guardo, = [e for e in published if e['internalName'] == 'GuardoSerie']
+    versions['GuardoSerie'] = old_guardo['version']
 entries = json.loads((root / 'plugins.json').read_text())
 assert len(entries) == len(expected), entries
 packages = list(root.glob('*.cs3'))
@@ -33,7 +37,7 @@ assert repo['pluginLists'] == ['https://raw.githubusercontent.com/Frenk0371/fren
 if len(sys.argv) > 2:
     previous = Path(sys.argv[2])
     old_entries = json.loads((previous / 'plugins.json').read_text())
-    for name in ('FilmPerTutti', 'CasaCinema'):
+    for name in ('FilmPerTutti', 'CasaCinema', 'GuardoSerie'):
         assert (root / (name + '.cs3')).read_bytes() == (previous / (name + '.cs3')).read_bytes()
         assert [e for e in entries if e['internalName'] == name] == [e for e in old_entries if e['internalName'] == name]
 print(f"Verified: package manifests match expected versions {versions}; ZIP/DEX and catalogue sizes valid.")

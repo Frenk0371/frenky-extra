@@ -55,6 +55,14 @@ class DistributionTests(unittest.TestCase):
         self.write_entries()
         self.assertNotEqual(self.validate().returncode, 0)
 
+    def test_modified_previous_guardo_package_is_rejected(self):
+        package = self.dist / 'GuardoSerie.cs3'
+        with ZipFile(package, 'a') as archive:
+            archive.writestr('unexpected.txt', 'change')
+        self.entries[-1]['fileSize'] = package.stat().st_size
+        self.write_entries()
+        self.assertNotEqual(self.validate().returncode, 0)
+
     def test_stale_manifest_version_is_rejected(self):
         package = self.dist / 'GuardoSerie.cs3'
         with ZipFile(package, 'w') as archive:

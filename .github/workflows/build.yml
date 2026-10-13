@@ -59,7 +59,7 @@ jobs:
         env:
           GUARDASERIE_LIVE_TEST: '1'
         run: gradle :GuardaSerie:testDebugUnitTest --tests com.frenky.extra.guardaserie.GuardaSerieLiveTest --rerun-tasks --no-daemon
-      - name: Read existing published movie providers
+      - name: Read existing published providers
         uses: actions/checkout@v4
         with:
           ref: builds
