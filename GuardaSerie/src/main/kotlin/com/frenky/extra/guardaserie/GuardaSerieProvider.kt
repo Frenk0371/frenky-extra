@@ -19,20 +19,17 @@ class GuardaSerieProvider : MainAPI() {
     override val hasQuickSearch = false
     override val mainPage = mainPageOf("home" to "I titoli del momento", "archive" to "Top IMDb")
     data class EpisodeData(val page: String, val season: Int, val episode: Int)
-    private val posters = GuardaSeriePosters()
     private suspend fun base(): String = DomainRegistry.resolve("guardaserie", "https://guarda-serie.ovh").also { mainUrl = it }
-    private suspend fun document(url: String, base: String, timeout: Long = 20L): Document {
+    private suspend fun document(url: String, base: String): Document {
         check(GuardaSeriePages.secure(url)?.host == GuardaSeriePages.secure(base)?.host) { "Dominio non verificato" }
-        val response = app.get(url, timeout = timeout, allowRedirects = false)
+        val response = app.get(url, timeout = 20L, allowRedirects = false)
         check(response.code == 200) { "GuardaSerie: HTTP ${response.code}; redirect o accesso da verificare" }
         val body = response.text
         check(body.length <= 1_000_000) { "Risposta troppo grande" }
         check(!listOf("cf-chl-", "g-recaptcha", "h-captcha", "verify you are human").any { body.contains(it, true) }) { "Verifica di accesso richiesta" }
         return Jsoup.parse(body, url)
     }
-    private suspend fun results(doc: Document, base: String): List<SearchResponse> = posters.resolve(GuardaSeriePages.cards(doc, base)) { url ->
-        GuardaSeriePages.metadata(document(url, base, timeout = 8L), base).poster
-    }.map { card ->
+    private fun results(doc: Document, base: String): List<SearchResponse> = GuardaSeriePages.cards(doc, base).map { card ->
         newTvSeriesSearchResponse(card.title, card.url) { posterUrl = card.poster }
     }
     override suspend fun search(query: String): List<SearchResponse> {

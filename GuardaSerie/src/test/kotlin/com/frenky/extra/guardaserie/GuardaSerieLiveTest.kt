@@ -25,17 +25,6 @@ class GuardaSerieLiveTest {
             return Jsoup.parse(text, url)
         } finally { connection.disconnect() }
     }
-    @Test fun rankedHomepageTitlesRecoverDetailPosters() = kotlinx.coroutines.runBlocking {
-        assumeTrue(System.getenv("GUARDASERIE_LIVE_TEST") == "1")
-        val cards = GuardaSeriePages.cards(read("$base/"), base)
-        val ranked = cards.filter { it.poster == null }.take(3)
-        assumeTrue("No image-free ranked links on today's homepage", ranked.isNotEmpty())
-        val resolved = GuardaSeriePosters().resolve(ranked) { url ->
-            GuardaSeriePages.metadata(read(url), base).poster
-        }
-        assertEquals(ranked.map { it.url }, resolved.map { it.url })
-        assertTrue("Ranked titles still have no detail posters", resolved.all { it.poster != null })
-    }
     @Test fun real883MetadataAndDeclaredEpisodes() {
         assumeTrue(System.getenv("GUARDASERIE_LIVE_TEST") == "1")
         val page = "$base/detail/tv-273419-hanno-ucciso-l-uomo-ragno-la-leggendaria-storia-degli-883"

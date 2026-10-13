@@ -1,4 +1,4 @@
-version = 3
+version = 4
 android {
     sourceSets["main"].kotlin.srcDir(layout.buildDirectory.dir("generated/domain-registry").get().asFile)
 }
