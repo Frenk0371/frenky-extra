@@ -55,7 +55,10 @@ def main():
             f.write("## Controllo sorgenti Frenky\n\n| Sorgente | Stato | Host configurato | Host finale |\n|---|---|---|---|\n")
             for item in results:
                 f.write(f"| {item['id']} | {item['status']} | {item.get('configured_host', '')} | {item.get('final_host', '')} |\n")
-    if any(item["status"] != "reachable" for item in results):
+    # A redirect to a different host needs manual review, but is not by itself
+    # a monitor execution failure. Never automatically trust or update that host.
+    failing_statuses = {"invalid_config", "http_error", "connection_error"}
+    if any(item["status"] in failing_statuses for item in results):
         raise SystemExit(1)
 
 if __name__ == "__main__":
