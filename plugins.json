@@ -1,0 +1,61 @@
+[
+    {
+        "url": "https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/GuardaSerie.cs3",
+        "status": 3,
+        "version": 6,
+        "name": "GuardaSerie",
+        "internalName": "GuardaSerie",
+        "authors": [
+            "Frenky"
+        ],
+        "description": "GuardaSerie: voce Frenky Extra distinta per evitare collisioni; player web verificato sul campione utente",
+        "fileSize": 36543,
+        "repositoryUrl": "https://github.com/Frenk0371/frenky-extra",
+        "language": "it",
+        "tvTypes": [
+            "TvSeries"
+        ],
+        "apiVersion": 1,
+        "fileHash": "sha256-b9f4c6bdd8d7e1a25286df0df768add699fddd236a155c423cb063e05aa82deb"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/FilmPerTutti.cs3",
+        "status": 3,
+        "version": 8,
+        "name": "FilmPerTutti",
+        "internalName": "FilmPerTutti",
+        "authors": [
+            "Frenky"
+        ],
+        "description": "FilmPerTutti: catalogo pubblico e lettori compatibili; verifica riproduzione in corso",
+        "fileSize": 51969,
+        "repositoryUrl": "https://github.com/Frenk0371/frenky-extra",
+        "language": "it",
+        "tvTypes": [
+            "Movie",
+            "TvSeries"
+        ],
+        "apiVersion": 1,
+        "fileHash": "sha256-b66313a69ee58608dbb5b359cfb842be188badf73b75a80b2e8c6aaee5f2e389"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/Frenk0371/frenky-extra/builds/CasaCinema.cs3",
+        "status": 3,
+        "version": 8,
+        "name": "CasaCinema",
+        "internalName": "CasaCinema",
+        "authors": [
+            "Frenky"
+        ],
+        "description": "CasaCinema: catalogo pubblico e lettori compatibili; verifica riproduzione in corso",
+        "fileSize": 51950,
+        "repositoryUrl": "https://github.com/Frenk0371/frenky-extra",
+        "language": "it",
+        "tvTypes": [
+            "Movie",
+            "TvSeries"
+        ],
+        "apiVersion": 1,
+        "fileHash": "sha256-d1e979390a4ea7102cd28bbb8b4b7cb3032c127e2ffd182bbbf21fe30a65db30"
+    }
+]
