@@ -314,7 +314,7 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                 embeds.isEmpty() -> {
                     val hasIframe = html.contains("<iframe", ignoreCase = true)
                     val hasVix = html.contains("vixsrc", ignoreCase = true)
-                    val hasImdb = Regex("""(?i)\\bimdb\\s*[:=]""").containsMatchIn(html)
+                    val hasImdb = Regex("""(?i)\bimdb\s*[:=]""").containsMatchIn(html)
                     val hasPlayerId = html.contains("vidxgo-player", ignoreCase = true)
                     "nessun player riconosciuto (iframe=$hasIframe, vix=$hasVix, imdb=$hasImdb, id=$hasPlayerId)"
                 }
@@ -323,8 +323,21 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
             }
             val message = "$name v11 TV TEST: " + reason + " (player: ${embeds.size})"
             Handler(Looper.getMainLooper()).post {
-                com.lagradost.cloudstream3.CloudStreamApp.context?.let { context ->
-                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                // Keep the TV diagnostic visible for a photo instead of a disappearing toast.
+                val activity = com.lagradost.cloudstream3.CommonActivity.activity
+                val isTv = activity?.resources?.configuration?.uiMode
+                    ?.and(android.content.res.Configuration.UI_MODE_TYPE_MASK) ==
+                    android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
+                if (isTv && activity != null && !activity.isFinishing && !activity.isDestroyed) {
+                    android.app.AlertDialog.Builder(activity)
+                        .setTitle("$name · TV TEST v11")
+                        .setMessage(message)
+                        .setPositiveButton("Chiudi", null)
+                        .show()
+                } else {
+                    com.lagradost.cloudstream3.CloudStreamApp.context?.let { context ->
+                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
