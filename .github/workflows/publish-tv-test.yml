@@ -5,6 +5,9 @@ on:
     branches: [fix/android-tv-web-player-isolated]
     paths:
       - '.github/workflows/publish-tv-test.yml'
+      - 'MultiSource/**'
+      - 'FilmPerTutti/**'
+      - 'CasaCinema/**'
 permissions:
   contents: write
 jobs:
