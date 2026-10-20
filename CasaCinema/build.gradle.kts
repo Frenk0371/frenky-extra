@@ -1,4 +1,4 @@
-version = 9
+version = 10
 
 android {
     sourceSets["main"].kotlin.srcDir("../MultiSource/src/main/kotlin")
@@ -6,7 +6,7 @@ android {
 }
 
 cloudstream {
-    description = "CasaCinema: catalogo pubblico e lettori compatibili; TEST TV: lettore web alternativo"
+    description = "CasaCinema: catalogo pubblico e lettori compatibili; TV TEST v10: diagnostica player"
     authors = listOf("Frenky")
     status = 3
     tvTypes = listOf("Movie", "TvSeries")
