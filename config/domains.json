@@ -1,13 +1,21 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-13",
+  "updated_at": "2026-10-20T07:16:33.425300+00:00",
   "sources": [
     {
       "id": "filmpertutti",
       "name": "FilmPerTutti",
       "original_url": "https://film-pertutti.fit/",
-      "current_url": "https://film-pertutti.fit/",
-      "manual_aliases": []
+      "current_url": "https://film-pertutti.casa/",
+      "manual_aliases": [],
+      "identity_review": {
+        "approved": true,
+        "verified_domain": "film-pertutti.casa",
+        "official_evidence_url": "https://film-pertutti.fit/",
+        "reviewed_at": "2026-10-20T07:16:19.363736+00:00",
+        "method": "https_redirect_and_site_identity",
+        "redirect_from": "https://film-pertutti.fit/"
+      }
     },
     {
       "id": "casacinema",

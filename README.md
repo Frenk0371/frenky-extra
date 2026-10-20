@@ -24,7 +24,7 @@ GuardoSerie (con la O) viene ritirato su autorizzazione esplicita dell’utente.
 
 ## Domini centralizzati
 
-Il provider legge `config/domains.json` con cache di un’ora. Il monitor controlla i domini ogni sei ore, senza approvare automaticamente nuovi host. Un cambio richiede revisione dell’annuncio/redirect sul dominio originale e registrazione di `identity_review` con `approved`, `verified_domain`, `official_evidence_url` e `reviewed_at`. Un nome o logo simile non basta. Se la verifica fallisce viene mantenuto il dominio originale.
+Il provider legge `config/domains.json` con cache di un’ora. Il monitor controlla i domini ogni sei ore e aggiorna quelli verificati tramite redirect HTTPS e controlli sulla pagina di destinazione, registrando `identity_review`. Un nome o logo simile, senza redirect dal dominio configurato, non basta. Se la verifica fallisce il registro non viene modificato; vedi i limiti descritti sotto.
 
 ## Build e pubblicazione
 
@@ -33,3 +33,24 @@ Plugin Gradle ufficiale da commit `32895aedb6366f5075cb99bbd2e6ce0a7cac325d`; Ja
 Le PR producono artefatti di revisione e non pubblicano. La pubblicazione dal ramo `main` aggiorna `builds` solo dopo tutti i controlli. La distribuzione contiene esattamente i tre pacchetti correnti.
 
 Diagnosi aggiornata e valutazione di guardaseriex.wiki: [GUARDASERIE_STATUS.md](GUARDASERIE_STATUS.md).
+
+### Aggiornamento automatico dei domini
+
+Il workflow `check-domains.yml` controlla il registro ogni sei ore (oppure con
+avvio manuale) e pubblica su `main` le migrazioni verificate. Il controllo può
+essere eseguito senza modifiche con `python scripts/check_domains.py`, oppure
+con aggiornamento locale mediante `python scripts/check_domains.py --update`.
+
+Un nuovo dominio viene accettato solo quando il dominio attualmente registrato
+vi reindirizza tramite HTTPS, la pagina finale è la homepage, il titolo contiene
+il nome della sorgente e la pagina presenta una struttura di navigazione. La
+verifica viene registrata nel formato `identity_review` già letto dal plugin;
+non serve ricompilare per una modifica al solo registro. La cache del plugin
+può ritardare la lettura del nuovo indirizzo fino a un'ora.
+
+Questi controlli riducono gli errori, ma non provano la proprietà del sito. Se il
+vecchio dominio non risponde, non effettua un redirect HTTP, restituisce una
+protezione antibot o il sito cambia struttura, è necessario un intervento.
+Il sistema non indovina domini e non garantisce il funzionamento dei lettori.
+La pubblicazione richiede che le regole del ramo consentano il push di
+`github-actions[bot]`; in caso contrario il workflow fallisce esplicitamente.

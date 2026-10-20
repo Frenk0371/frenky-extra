@@ -1,21 +1,46 @@
 name: Monitor all provider domains
 on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/check-domains.yml
+      - scripts/check_domains.py
+      - scripts/tests/test_check_domains.py
+      - config/domains.json
   workflow_dispatch:
   schedule:
     - cron: '17 */6 * * *'
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: provider-domain-registry
+  cancel-in-progress: false
 jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Check domains in registry
-        run: python scripts/check_domains.py
+      - name: Test domain migration checks
+        run: python -m unittest discover -s scripts/tests -p 'test_check_domains.py' -v
+      - name: Check and update verified domains in registry
+        id: domains
+        run: python scripts/check_domains.py --update
+      - name: Publish verified registry changes
+        if: ${{ !cancelled() && steps.domains.outcome != 'skipped' }}
+        run: |
+          if ! git diff --quiet -- config/domains.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add config/domains.json
+            git commit -m "Update verified provider domains"
+            git push origin HEAD:main
+          fi
       - name: Preserve diagnostics
         if: always()
         uses: actions/upload-artifact@v4
