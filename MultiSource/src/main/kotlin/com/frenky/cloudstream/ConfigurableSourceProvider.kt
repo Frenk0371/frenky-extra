@@ -311,11 +311,17 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                 return false // No native extractor link has been produced.
             }
             val reason = when {
-                embeds.isEmpty() -> "nessun player dichiarato nella scheda"
+                embeds.isEmpty() -> {
+                    val hasIframe = html.contains("<iframe", ignoreCase = true)
+                    val hasVix = html.contains("vixsrc", ignoreCase = true)
+                    val hasImdb = Regex("""(?i)\\bimdb\\s*[:=]""").containsMatchIn(html)
+                    val hasPlayerId = html.contains("vidxgo-player", ignoreCase = true)
+                    "nessun player riconosciuto (iframe=$hasIframe, vix=$hasVix, imdb=$hasImdb, id=$hasPlayerId)"
+                }
                 playerFailure != null -> playerFailure
                 else -> "player rilevati ma nessun collegamento riproducibile"
             }
-            val message = "$name v10 TV TEST: " + reason + " (player: ${embeds.size})"
+            val message = "$name v11 TV TEST: " + reason + " (player: ${embeds.size})"
             Handler(Looper.getMainLooper()).post {
                 com.lagradost.cloudstream3.CloudStreamApp.context?.let { context ->
                     Toast.makeText(context, message, Toast.LENGTH_LONG).show()
