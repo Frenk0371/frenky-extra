@@ -1,0 +1,87 @@
+name: Publish Android TV test repository
+on:
+  workflow_dispatch:
+  push:
+    branches: [fix/android-tv-web-player-isolated]
+    paths:
+      - '.github/workflows/publish-tv-test.yml'
+      - 'MultiSource/**'
+      - 'FilmPerTutti/**'
+      - 'CasaCinema/**'
+concurrency:
+  group: isolated-tv-test-publish
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  tv-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: recloudstream/gradle
+          ref: 32895aedb6366f5075cb99bbd2e6ce0a7cac325d
+          path: .cloudstream-gradle
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.0'
+      - name: Compile isolated TV plugins
+        run: gradle :FilmPerTutti:testDebugUnitTest :CasaCinema:testDebugUnitTest make makePluginsJson --no-daemon
+      - name: Prepare independent TV catalogue
+        run: |
+          python3 - <<'PY'
+          import json, shutil
+          from pathlib import Path
+          out=Path('/tmp/frenky-tv-test')
+          out.mkdir(parents=True,exist_ok=True)
+          names={'FilmPerTutti','CasaCinema'}
+          original=json.loads(Path('build/plugins.json').read_text())
+          entries=[]
+          for entry in original:
+              if entry['internalName'] not in names: continue
+              entry['url']='https://raw.githubusercontent.com/Frenk0371/frenky-extra/tv-test-builds/'+entry['internalName']+'.cs3'
+              entries.append(entry)
+          assert {e['internalName'] for e in entries}==names
+          assert all(e['version']==11 for e in entries)
+          for name in names:
+              matches=list(Path(name+'/build').rglob(name+'.cs3'))
+              assert len(matches)==1, (name,matches)
+              shutil.copyfile(matches[0],out/(name+'.cs3'))
+          (out/'plugins.json').write_text(json.dumps(entries,indent=2)+'\n')
+          (out/'repo.json').write_text(json.dumps({
+              'name':'Frenky Extra - TV TEST',
+              'description':'Solo test Android TV per FilmPerTutti e CasaCinema v11',
+              'manifestVersion':1,
+              'pluginLists':['https://raw.githubusercontent.com/Frenk0371/frenky-extra/tv-test-builds/plugins.json']
+          },indent=2)+'\n')
+          from zipfile import ZipFile
+          for name in names:
+              with ZipFile(out/(name+'.cs3')) as z:
+                  assert z.testzip() is None
+                  assert json.loads(z.read('manifest.json'))['version']==11
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tv-test-repository
+          path: /tmp/frenky-tv-test
+      - name: Publish to independent tv-test-builds branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd /tmp/frenky-tv-test
+          git init -b tv-test-builds
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m 'Android TV test repository v11'
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin HEAD:tv-test-builds
