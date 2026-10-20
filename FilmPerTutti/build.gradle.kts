@@ -1,4 +1,4 @@
-version = 8
+version = 9
 
 android {
     sourceSets["main"].kotlin.srcDir("../MultiSource/src/main/kotlin")
@@ -6,7 +6,7 @@ android {
 }
 
 cloudstream {
-    description = "FilmPerTutti: catalogo pubblico e lettori compatibili; verifica riproduzione in corso"
+    description = "FilmPerTutti: catalogo pubblico e lettori compatibili; TEST TV: lettore web alternativo"
     authors = listOf("Frenky")
     status = 3
     tvTypes = listOf("Movie", "TvSeries")
