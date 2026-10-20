@@ -310,7 +310,12 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                 InternalPublicPlayer.offer(name, interactivePage)
                 return false // No native extractor link has been produced.
             }
-            val message = "$name: " + (playerFailure ?: "nessun lettore compatibile disponibile")
+            val reason = when {
+                embeds.isEmpty() -> "nessun player dichiarato nella scheda"
+                playerFailure != null -> playerFailure
+                else -> "player rilevati ma nessun collegamento riproducibile"
+            }
+            val message = "$name v10 TV TEST: " + reason + " (player: ${embeds.size})"
             Handler(Looper.getMainLooper()).post {
                 com.lagradost.cloudstream3.CloudStreamApp.context?.let { context ->
                     Toast.makeText(context, message, Toast.LENGTH_LONG).show()
