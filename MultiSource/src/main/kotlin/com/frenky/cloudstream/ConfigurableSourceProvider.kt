@@ -292,6 +292,19 @@ open class ConfigurableSourceProvider(private val source: Source) : MainAPI() {
                 Log.w("FrenkyExtra", "${source.id}: $playerFailure")
             }
         }
+        if (!found && interactivePage == null && !isCasting) {
+            // TV-only fallback: do not change the tablet/phone playback path.
+            // A visible player is offered only for an explicitly declared VixSrc movie URL.
+            val context = com.lagradost.cloudstream3.CloudStreamApp.context
+            val isTelevision = context?.resources?.configuration?.uiMode
+                ?.and(android.content.res.Configuration.UI_MODE_TYPE_MASK) ==
+                android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
+            if (isTelevision) {
+                interactivePage = embeds.asSequence()
+                    .mapNotNull { InternalPlayerPage.movie(it) }
+                    .firstOrNull()
+            }
+        }
         if (!found) {
             if (interactivePage != null) {
                 InternalPublicPlayer.offer(name, interactivePage)
