@@ -1,0 +1,8 @@
+{
+  "name": "Frenky Extra - TV TEST",
+  "description": "Solo test Android TV per FilmPerTutti e CasaCinema v11",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/Frenk0371/frenky-extra/tv-test-builds/plugins.json"
+  ]
+}

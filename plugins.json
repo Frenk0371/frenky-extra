@@ -1,0 +1,42 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/Frenk0371/frenky-extra/tv-test-builds/CasaCinema.cs3",
+    "status": 3,
+    "version": 11,
+    "name": "CasaCinema",
+    "internalName": "CasaCinema",
+    "authors": [
+      "Frenky"
+    ],
+    "description": "CasaCinema: catalogo pubblico e lettori compatibili; TV TEST v11: diagnostica struttura pagina",
+    "fileSize": 52688,
+    "repositoryUrl": "https://github.com/Frenk0371/frenky-extra",
+    "language": "it",
+    "tvTypes": [
+      "Movie",
+      "TvSeries"
+    ],
+    "apiVersion": 1,
+    "fileHash": "sha256-498d27cc9f0554a227ab8272a3d28933835d59896ed8ccb1a4b1a5160637aecf"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Frenk0371/frenky-extra/tv-test-builds/FilmPerTutti.cs3",
+    "status": 3,
+    "version": 11,
+    "name": "FilmPerTutti",
+    "internalName": "FilmPerTutti",
+    "authors": [
+      "Frenky"
+    ],
+    "description": "FilmPerTutti: catalogo pubblico e lettori compatibili; TV TEST v11: diagnostica struttura pagina",
+    "fileSize": 52708,
+    "repositoryUrl": "https://github.com/Frenk0371/frenky-extra",
+    "language": "it",
+    "tvTypes": [
+      "Movie",
+      "TvSeries"
+    ],
+    "apiVersion": 1,
+    "fileHash": "sha256-398052e50e91b1a63d157095320cc44d5e17143e1a178817320680b2e3d09da2"
+  }
+]
