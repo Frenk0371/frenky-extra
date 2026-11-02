@@ -1,28 +1,36 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-26T22:41:56.896588+00:00",
+  "updated_at": "2026-11-02T15:58:48.564710+00:00",
   "sources": [
     {
       "id": "filmpertutti",
       "name": "FilmPerTutti",
       "original_url": "https://film-pertutti.fit/",
-      "current_url": "https://film-pertutti.fun/",
+      "current_url": "https://film-pertutti.digital/",
       "manual_aliases": [],
       "identity_review": {
         "approved": true,
-        "verified_domain": "film-pertutti.fun",
+        "verified_domain": "film-pertutti.digital",
         "official_evidence_url": "https://film-pertutti.fit/",
-        "reviewed_at": "2026-10-26T22:41:54.392884+00:00",
+        "reviewed_at": "2026-11-02T15:58:46.293075+00:00",
         "method": "https_redirect_and_site_identity",
-        "redirect_from": "https://film-pertutti.casa/"
+        "redirect_from": "https://film-pertutti.fun/"
       }
     },
     {
       "id": "casacinema",
       "name": "CasaCinema",
       "original_url": "https://casa-cinema.boats/",
-      "current_url": "https://casa-cinema.boats/",
-      "manual_aliases": []
+      "current_url": "https://casa-cinema.top/",
+      "manual_aliases": [],
+      "identity_review": {
+        "approved": true,
+        "verified_domain": "casa-cinema.top",
+        "official_evidence_url": "https://casa-cinema.boats/",
+        "reviewed_at": "2026-11-02T15:58:46.979020+00:00",
+        "method": "https_redirect_and_site_identity",
+        "redirect_from": "https://casa-cinema.boats/"
+      }
     },
     {
       "id": "guardaserie",
