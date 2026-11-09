@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-02T15:58:48.564710+00:00",
+  "updated_at": "2026-11-09T22:24:36.381049+00:00",
   "sources": [
     {
       "id": "filmpertutti",
       "name": "FilmPerTutti",
       "original_url": "https://film-pertutti.fit/",
-      "current_url": "https://film-pertutti.digital/",
+      "current_url": "https://film-pertutti.garden/",
       "manual_aliases": [],
       "identity_review": {
         "approved": true,
-        "verified_domain": "film-pertutti.digital",
+        "verified_domain": "film-pertutti.garden",
         "official_evidence_url": "https://film-pertutti.fit/",
-        "reviewed_at": "2026-11-02T15:58:46.293075+00:00",
+        "reviewed_at": "2026-11-09T22:24:34.757322+00:00",
         "method": "https_redirect_and_site_identity",
-        "redirect_from": "https://film-pertutti.fun/"
+        "redirect_from": "https://film-pertutti.digital/"
       }
     },
     {
