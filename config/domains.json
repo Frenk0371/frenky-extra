@@ -1,35 +1,35 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T22:24:36.381049+00:00",
+  "updated_at": "2026-11-16T22:06:02.504018+00:00",
   "sources": [
     {
       "id": "filmpertutti",
       "name": "FilmPerTutti",
       "original_url": "https://film-pertutti.fit/",
-      "current_url": "https://film-pertutti.garden/",
+      "current_url": "https://film-pertutti.ink/",
       "manual_aliases": [],
       "identity_review": {
         "approved": true,
-        "verified_domain": "film-pertutti.garden",
+        "verified_domain": "film-pertutti.ink",
         "official_evidence_url": "https://film-pertutti.fit/",
-        "reviewed_at": "2026-11-09T22:24:34.757322+00:00",
+        "reviewed_at": "2026-11-16T22:06:00.095821+00:00",
         "method": "https_redirect_and_site_identity",
-        "redirect_from": "https://film-pertutti.digital/"
+        "redirect_from": "https://film-pertutti.garden/"
       }
     },
     {
       "id": "casacinema",
       "name": "CasaCinema",
       "original_url": "https://casa-cinema.boats/",
-      "current_url": "https://casa-cinema.top/",
+      "current_url": "https://casa-cinema.lol/",
       "manual_aliases": [],
       "identity_review": {
         "approved": true,
-        "verified_domain": "casa-cinema.top",
+        "verified_domain": "casa-cinema.lol",
         "official_evidence_url": "https://casa-cinema.boats/",
-        "reviewed_at": "2026-11-02T15:58:46.979020+00:00",
+        "reviewed_at": "2026-11-16T22:06:00.803733+00:00",
         "method": "https_redirect_and_site_identity",
-        "redirect_from": "https://casa-cinema.boats/"
+        "redirect_from": "https://casa-cinema.top/"
       }
     },
     {
